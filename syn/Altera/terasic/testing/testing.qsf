@@ -876,7 +876,7 @@ set_global_assignment -name VERILOG_FILE bar_white.v
 set_global_assignment -name VERILOG_FILE bar_blank.v
 set_global_assignment -name VERILOG_FILE bar_big.v
 #set_global_assignment -name VERILOG_FILE Audio_pll.v
-#set_global_assignment -name VERILOG_FILE adc_spi_controller.v
+set_global_assignment -name VERILOG_FILE adc_spi_controller.v
 set_global_assignment -name SDC_FILE testing.SDC
 #set_global_assignment -name SYSTEMVERILOG_FILE mixer.sv
 set_global_assignment -name SYSTEMVERILOG_FILE midi_controllers_unit.sv
