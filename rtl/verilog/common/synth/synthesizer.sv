@@ -191,22 +191,7 @@ reg    [31:0]VGA_CLK_o;
 	always @( posedge CLOCK_25) VGA_CLK_o = VGA_CLK_o + 1;
 wire   sysclk = VGA_CLK_o[10];
 wire 	 touch_clk = VGA_CLK_o[10];
-//	AUDIO SOUND
 
-Audio_pll	Audio_pll (
-	.inclk0 ( CLOCK_50 ),
-	.c0 ( AUD_CTRL_CLK ),  // 16.925466 Mhz
-	.c1 ( TONE_CTRL_CLK ), // 64.880952--> 267.187500 --> 271.428571 Mhz
-	.locked (  )
-);
-
-wire AUD_CTRL_CLK;
-wire TONE_CTRL_CLK;
-	
-assign	AUD_ADCLRCK	=	AUD_DACLRCK;
-
-assign	AUD_XCK		=	AUD_CTRL_CLK;			
-	
 
 //---				---//
 
@@ -283,8 +268,11 @@ midi_controllers_unit #(.VOICES(VOICES),.V_OSC(V_OSC)) midi_controllers(
 	.pitch_val		( pitch_val )
 );
 
-//////////// Sound Generation /////////////	
 wire voice_free[VOICES];
+
+//////////// Sound Generation /////////////	
+
+`ifdef _Synth
 					
 // 2CH Audio Sound output -- Audio Generater //
 synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS)) synth_engine_inst	(		        
@@ -315,6 +303,24 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS)) synth_engine_inst	
 	.com_buf( com_buf ),
 	.pitch_val ( pitch_val )
 );
+//	AUDIO SOUND
+
+Audio_pll	Audio_pll (
+	.inclk0 ( CLOCK_50 ),
+	.c0 ( AUD_CTRL_CLK ),  // 16.925466 Mhz
+	.c1 ( TONE_CTRL_CLK ), // 64.880952--> 267.187500 --> 271.428571 Mhz
+	.locked (  )
+);
+
+wire AUD_CTRL_CLK;
+wire TONE_CTRL_CLK;
+	
+assign	AUD_ADCLRCK	=	AUD_DACLRCK;
+
+assign	AUD_XCK		=	AUD_CTRL_CLK;			
+	
+`endif
+
 
 /////// LED Display ////////
 assign GLED[8:1] = {key_on[7],key_on[6],key_on[5],key_on[4],
