@@ -1,29 +1,29 @@
 module midi_controllers_unit (
-	input iCLK,
+	input CLOCK_25,
 	input iRST_n,
 	input [17:0]SW,
-// from midi_decoder
-	input    		ctrl_cmd, 
-	input  [7:0]	ctrl, 
-	input  [7:0]	cur_data, 
+//@name from midi_decoder
+	input    		ictrl_cmd, 
+	input  [7:0]	ictrl, 
+	input  [7:0]	ictrl_data, 
 	input  [7:0]	sysex_data[3], 
 	input    		pitch_cmd,
 	input    		sysex_cmd,
-//	controller & status signals //	
+//@name	controller & status signals //	
 	output [3:0]hex_disp[8],
 	output [7:0]disp_data[64],
 	output [7:0] o_index,
-//	cpu signals //
+//@name	cpu signals //
 	input 			N_adr_data_rdy,					// midi data ready from Nios
 	input [8:0] N_adr,				// controller nr.
 	output [7:0] N_synth_out_data,		// data byte
 	input [7:0] N_synth_in_data,		// data byte
-//	touch signals	 //
+//@name	touch signals	 //
 	input [7:0] slide_val,
 	input [7:0] disp_val,
 	input write_slide,
 	
-//		Controller Values		//
+//@name		Controller Values		//
 //	output reg signed[7:0] synth_data[64],
 	output reg signed [7:0] env_buf[16][V_OSC],
 	output reg signed [7:0] osc_buf[16][V_OSC],
@@ -207,27 +207,7 @@ assign disp_data[12] = (!SW[16]) ? (env_buf[4'h2][1]):(8'h00);
 assign disp_data[13] = (!SW[16]) ? (env_buf[4'h6][1]):(8'h00);					
 assign disp_data[14] = (!SW[16]) ? (env_buf[4'h3][1]):(8'h00);					
 assign disp_data[15] = (!SW[16]) ? (env_buf[4'h7][1]):(8'h00);					
-/*
 // 2 -- b010
-assign disp_data[16] = (!SW[16]) ? (env_buf[4'h8][0]):(8'h00);					
-assign disp_data[17] = (!SW[16]) ? (env_buf[4'hC][0]):(8'h00);					
-assign disp_data[18] = (!SW[16]) ? (env_buf[4'h9][0]):(8'h00);					
-assign disp_data[19] = (!SW[16]) ? (env_buf[4'hD][0]):(8'h00);					
-assign disp_data[20] = (!SW[16]) ? (env_buf[4'hA][0]):(8'h00);					
-assign disp_data[21] = (!SW[16]) ? (env_buf[4'hE][0]):(8'h00);					
-assign disp_data[22] = (!SW[16]) ? (env_buf[4'hB][0]):(8'h00);					
-assign disp_data[23] = (!SW[16]) ? (env_buf[4'hF][0]):(8'h00);					
-// 3 -- b011
-assign disp_data[24] = (!SW[16]) ? (env_buf[4'h8][1]):(8'h00);					
-assign disp_data[25] = (!SW[16]) ? (env_buf[4'hC][1]):(8'h00);					
-assign disp_data[26] = (!SW[16]) ? (env_buf[4'h9][1]):(8'h00);					
-assign disp_data[27] = (!SW[16]) ? (env_buf[4'hD][1]):(8'h00);					
-assign disp_data[28] = (!SW[16]) ? (env_buf[4'hA][1]):(8'h00);					
-assign disp_data[29] = (!SW[16]) ? (env_buf[4'hE][1]):(8'h00);					
-assign disp_data[30] = (!SW[16]) ? (env_buf[7'hB][1]):(8'h00);					
-assign disp_data[31] = (!SW[16]) ? (env_buf[4'hF][1]):(8'h00);					
-// 2 -- b010
-*/
 assign disp_data[16] = (!SW[16]) ? (env_buf[4'h0][2]):(8'h00);					
 assign disp_data[17] = (!SW[16]) ? (env_buf[4'h4][2]):(8'h00);					
 assign disp_data[18] = (!SW[16]) ? (env_buf[4'h1][2]):(8'h00);					
@@ -253,9 +233,9 @@ assign disp_data[35] = (!SW[16]) ? (osc_buf[4'h3][0]):(8'h00);
 assign disp_data[36] = (!SW[16]) ? (osc_buf[4'h4][0]):(8'h00);
 assign disp_data[37] = (!SW[16]) ? (osc_buf[4'h5][0]):(8'h00);
 assign disp_data[38] = (!SW[16]) ? (osc_buf[4'h6][0]):(8'h00);
-assign disp_data[39] = (!SW[16]) ? (osc_buf[4'h7][0]):(8'h00);					
+assign disp_data[39] = (!SW[16]) ? (osc_buf[4'h8][0]):(8'h00);					
 // 4 -- b101					
-assign disp_data[40] = (!SW[16]) ? (osc_buf[4'h8][0]):(8'h00);					
+assign disp_data[40] = (!SW[16]) ? (osc_buf[4'h9][0]):(8'h00);					
 assign disp_data[41] = (!SW[16]) ? (com_buf[4'h0]):(8'h00);					
 assign disp_data[42] = (!SW[16]) ? (com_buf[4'h1]):(8'h00);					
 // 5 -- b110
@@ -335,11 +315,9 @@ assign midi_data[56] = osc_buf[4'h8][1];
 
 /////////////	Fetch Controllers			/////////////
 // 		Internal				//
-	reg [7:0]cur_ctrl;
-//	reg [7:0]cur_data;
-	reg pitch_cmd_r;
-	reg ctrl_cmd_r;
-	reg sysex_cmd_r;
+	reg [7:0]ctrl_r;
+	reg [7:0]ctrl_data_r;
+	reg pitch_cmd_r, ctrl_cmd_r, sysex_cmd_r, data_ready;
 	reg [6:0]pitch_lsb;
 
 	reg [7:0] pb_value;
@@ -356,18 +334,21 @@ assign midi_data[56] = osc_buf[4'h8][1];
 	reg signed[7:0]m_vol;
 	reg signed[7:0]osc_feedb[V_OSC]; 
 
-	assign o_index = com_buf[4];
-	wire[3:0]osc_inx = o_index[3:0];
+//	assign o_index = com_buf[4];
+	reg [3:0]col_inx;
+	reg [4:0]bnk_inx;
 	
 	reg N_adr_data_rdy_r, N_load_sig_r, N_save_sig_r, write_slide_r; 
-	reg [7:0] N_synth_in_data_r, s_adr_1,c_adr_1, s_adr_0, c_adr_0, s_dat_val, slide_val_r, data;
+	reg [7:0] N_synth_in_data_r, s_adr_1,row_adr_1, s_adr_0, col_adr_0, s_dat_val, slide_val_r, data;
 	reg [7:0] c_adr_1_r, c_adr_0_r;
 	reg [8:0] N_adr_r;
 	reg [7:0] disp_val_r;
 	wire [O_WIDTH:0]a1;
-	always @(posedge iCLK)begin
-		ctrl_cmd_r <= ctrl_cmd;
+	always @(posedge CLOCK_25)begin
+		ctrl_cmd_r <= ictrl_cmd;
+		ctrl_data_r <= ictrl_data;
 		sysex_cmd_r <= sysex_cmd;
+		data_ready <= (ictrl_cmd & !ctrl_cmd_r) | (sysex_cmd & ! sysex_cmd_r);
 		pitch_cmd_r <= pitch_cmd;
 		N_adr_data_rdy_r <= N_adr_data_rdy;
 		N_synth_in_data_r <= N_synth_in_data;
@@ -376,31 +357,52 @@ assign midi_data[56] = osc_buf[4'h8][1];
 		N_save_sig_r <= N_save_sig;
 		write_slide_r <= write_slide;
 		slide_val_r <= slide_val;
-		s_adr_1 <= sysex_data[0];
-		s_adr_0 <= sysex_data[1];
-		s_dat_val <= sysex_data[2];
 		disp_val_r <= disp_val;
-		c_adr_1_r <= c_adr_1;
-		c_adr_0_r <= c_adr_0;
-//		data <= cur_data;
 	end
 
-	always @(posedge ctrl_cmd_r) cur_ctrl <= ctrl;
+	always @(posedge ictrl_cmd) ctrl_r <= ictrl;
 
-	always @(negedge ctrl_cmd_r) begin
-			if(cur_ctrl == 46) begin c_adr_1 <= cur_data; end
-			else if(cur_ctrl == 47) begin c_adr_0 <= cur_data; end
+	always @(posedge sysex_cmd_r or posedge ctrl_cmd_r)begin
+		if(sysex_cmd_r) begin : sysex_mappings;
+			data <= sysex_data[2]; row_adr_1 <= com_buf[4][3:0];
+			bnk_inx <= sysex_data[0]; col_adr_0 <= sysex_data[1];
+		end
+		else if(ctrl_cmd_r) begin : CC_mappings; // @brief Korg Kronos
+			if(ctrl_r >= 8'd22 && ctrl_r <= 8'd29) begin // @brief Buttons Upper
+				data <= ictrl - 8'd22;
+				col_inx <= (ictrl_data & 8'h01);
+				bnk_inx <= 4'd4; row_adr_1 <= 4'd0; col_adr_0 <= 4'd5; 
+			end 
+	
+			else if(ictrl == 8'd39) begin // @brief Volume (Master fader)
+				data <= ictrl_data;						
+				bnk_inx <= 4'd4; row_adr_1 <= 4'd0; col_adr_0 <= 1'b1; 
+			end 
+						
+			else if(ictrl >= 8'd48 && ictrl <= 8'd55) begin// @brief Faders
+				data <= ictrl_data;						
+				bnk_inx <= 4'd0; row_adr_1 <= com_buf[4][3:0]; col_adr_0 <= ictrl - 8'd48;  
+			end 
+	
+			else if(ictrl >= 8'd56 && ictrl <= 8'd63)begin // @brief Buttons Lower
+				data <= ictrl - 8'd56;						
+				bnk_inx <= 4'd4; row_adr_1 <= 4'd0; col_adr_0 <= 4'd4; 
+			end 
+	
+			else if(ictrl >= 8'd76 && ictrl <= 8'd83)begin // @brief Knobs
+				data <= ictrl_data;						
+				bnk_inx <= 4'd1; row_adr_1 <= com_buf[4][3:0]; col_adr_0 <= ictrl - 8'd76;
+			end 
+		end
 	end
-	always @(posedge pitch_cmd_r)	pitch_lsb <= ctrl[6:0];
 
-	always @(negedge pitch_cmd_r)	pitch_val <= {cur_data[6:0],pitch_lsb};
+	always @(posedge pitch_cmd_r)	pitch_val <= {ictrl_data[6:0],ictrl[6:0]};
 
-//	always @(negedge iRST_n	or posedge write_slide_r or posedge N_adr_data_rdy_r
-//	always @(negedge iRST_n	or posedge N_adr_data_rdy_r
-//			or posedge sysex_cmd_r )begin
+//	always @(negedge pitch_cmd_r)	pitch_val <= {ictrl_data[6:0],pitch_lsb};
+
 	always @(negedge iRST_n
 //			or posedge sysex_cmd_r or posedge write_slide_r)begin
-			or posedge sysex_cmd_r or posedge write_slide or negedge ctrl_cmd_r)begin
+			or posedge data_ready) begin
 		if (!iRST_n) begin 		
 			for(a1=0;a1<V_OSC;a1++)begin
 				env_buf[4'h0][a1] <= 8'h00;
@@ -469,51 +471,36 @@ assign midi_data[56] = osc_buf[4'h8][1];
 			com_buf[4'hD] <= 8'h00;
 			com_buf[4'hE] <= 8'h00;
 			com_buf[4'hF] <= 8'h00;
-		end	
-/*		else if(write_slide_r)begin 
-				case(disp_val_r[8:7])
-					2'b00:	env_buf[disp_val_r[3:0]][disp_val_r[B_WIDTH:4]] <= slide_val_r;	
-					2'b01:	osc_buf[disp_val_r[3:0]][disp_val_r[B_WIDTH:4]] <= slide_val_r;	
-					2'b10:	com_buf[disp_val_r[3:0]] <= slide_val_r;	
-					default:;
-				endcase
-		end	
-*/
-		else if(write_slide)begin 
-			midi_data[disp_val] <= slide_val;
-		end
-		else if (sysex_cmd_r) begin
-			case(s_adr_1)
-				8'h00:	env_buf[s_adr_0[3:0]][s_adr_0[B_WIDTH:4]+osc_inx] <= s_dat_val;
-				8'h01:	osc_buf[s_adr_0[3:0]][s_adr_0[B_WIDTH:4]+osc_inx] <= s_dat_val;
-				8'h02:	mat_buf[s_adr_0[3:0]][s_adr_0[B_WIDTH:4]+osc_inx] <= s_dat_val;
-				8'h03:	mat_buf[(s_adr_0[3:0]+16)][s_adr_0[B_WIDTH:4]+osc_inx] <= s_dat_val;
-				8'h04:	com_buf[s_adr_0[3:0]] <= s_dat_val;
-				default:; 
-			endcase
-		end	
-		else if (!ctrl_cmd_r) begin
-			case(c_adr_1_r)
-				8'h00:	env_buf[c_adr_0_r[3:0]][c_adr_0_r[B_WIDTH:4]+osc_inx] <= cur_data;
-				8'h01:	osc_buf[c_adr_0_r[3:0]][c_adr_0_r[B_WIDTH:4]+osc_inx] <= cur_data;
-				8'h02:	mat_buf[c_adr_0_r[3:0]][c_adr_0_r[B_WIDTH:4]+osc_inx] <= cur_data;
-				8'h03:	mat_buf[(c_adr_0_r[3:0]+16)][c_adr_0_r[B_WIDTH:4]+osc_inx] <= cur_data;
-				8'h04:	com_buf[c_adr_0_r[3:0]] <= cur_data;
-				default:; 
-			endcase
-		end	
+		end	else begin
+//		else if(write_slide_r)begin 
+//			midi_data[disp_val] <= slide_val;
+//		end
 
-/*		else if(N_adr_data_rdy_r)begin
-			if(N_load_sig_r)begin
-				case(N_adr_r[8:7])
-					2'b00:	env_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]] <= N_synth_in_data_r;	
-					2'b01:	osc_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]] <= N_synth_in_data_r;	
-					2'b10:	com_buf[N_adr_r[3:0]] <= N_synth_in_data_r;	
-					default:;
+			if (data_ready) begin
+				case(bnk_inx)
+					4'h0:	env_buf[col_adr_0[3:0]+(col_inx<<3)][row_adr_1] <= data;
+					4'h1:	osc_buf[col_adr_0[3:0]+(col_inx<<3)][row_adr_1] <= data;
+					4'h2:	mat_buf[col_adr_0[3:0]+(col_inx<<3)][row_adr_1] <= data;
+					4'h3:	mat_buf[(col_adr_0[3:0]+16)+(col_inx<<3)][row_adr_1] <= data;
+					4'h4:	com_buf[col_adr_0[3:0]+(col_inx<<3)] <= data;
+					default:; 
 				endcase
+			end	
+	
+/*			else if(N_adr_data_rdy_r)begin
+				if(N_load_sig_r)begin
+					case(N_adr_r[8:7])
+						2'b00:	env_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]] <= N_synth_in_data_r;	
+						2'b01:	osc_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]] <= N_synth_in_data_r;	
+						2'b10:	com_buf[N_adr_r[3:0]] <= N_synth_in_data_r;	
+						default:;
+					endcase
+				end
 			end
+*/	
+			
 		end
-*/	end
+	end
 /*
 	always @(posedge N_adr_data_rdy_r)begin
 //	if(N_adr_data_rdy_r)begin

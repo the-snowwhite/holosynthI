@@ -89,14 +89,14 @@ wire [7:0] slide_scale = (((x - 40)<<7)/180);
 	always @(posedge sys_clk)begin
 		case(lne)
 			1: if(chr_3 <=7)disp_val <= chr_3;
-			2: if(chr_3 <=7)disp_val <= chr_3+8;
-			3: if(chr_3<=7)disp_val <= chr_3+16;
-			4: if(chr_3<=7)disp_val <= chr_3+24;
+			2: if(chr_3 <=7)disp_val <= chr_3+8'd8;
+			3: if(chr_3<=7)disp_val <= chr_3+8'd16;
+			4: if(chr_3<=7)disp_val <= chr_3+8'd24;
 			7: begin 
-					if(chr_3<=8)disp_val <= chr_3+32;
-					else if (chr_3>=10)disp_val <= chr_3+31;
+					if(chr_3<=8'd8)disp_val <= chr_3+8'd32;
+					else if (chr_3>=8'd10)disp_val <= chr_3+8'd31;
 				end
-			8: if(chr_3<=8)disp_val <= chr_3+48;
+			8: if(chr_3<=8'd8)disp_val <= chr_3+8'd48;
 			default: disp_val <= 8'h00; 
 		endcase
 		edit_chr <= disp_data[disp_val];
@@ -127,7 +127,8 @@ always@(posedge sys_clk) transmit_en_dly1 <= transmit_en;
 		write_slide <= 1'b0;
 		N_sound_nr <= 8'h00;
 	end
-	else if (!transmit_en)begin
+	else begin 
+		if (!transmit_en)begin
 			if (plus_hit || minus_hit)begin 
 				write_slide <= ((~N_save_sig_1 & ~N_load_sig_1) & transmit_en_dly1);
 //				if ((N_save_sig_1 || N_load_sig_1)&& (slide_scale < 128) )begin
@@ -138,54 +139,55 @@ always@(posedge sys_clk) transmit_en_dly1 <= transmit_en;
 		end
 		else begin
 
-		//		if (cont_cnt == 0)
-		if (t_cnt == 7)begin
-			hit_x <= x; hit_y <= y;		
-		end
-		if (cont_cnt == 1)begin
-			if ((!N_save_sig_1 && !N_save_sig) && (!N_load_sig_1 && !N_load_sig)
-				&& (in_textarea && no_drag))begin
-				chr_3 <= cur_h_x;
-				lne <= cur_h_y;
+			//		if (cont_cnt == 0)
+			if (t_cnt == 7)begin
+				hit_x <= x; hit_y <= y;		
 			end
-			else if(N_save_sig_1 && !N_save_sig)begin
-				chr_3 <= 4'd11;
-				lne <= 4'd11;
+			if (cont_cnt == 1)begin
+				if ((!N_save_sig_1 && !N_save_sig) && (!N_load_sig_1 && !N_load_sig)
+					&& (in_textarea && no_drag))begin
+					chr_3 <= cur_h_x;
+					lne <= cur_h_y;
+				end
+				else if(N_save_sig_1 && !N_save_sig)begin
+					chr_3 <= 4'd11;
+					lne <= 4'd11;
+				end
+				else if(N_load_sig_1 && !N_load_sig)begin
+					chr_3 <= 4'd11;
+					lne <= 4'd09;
+				end
+				else if (N_save_sig || N_load_sig)begin
+					chr_3 <= cur_h_x;
+					lne <= cur_h_y;
+				end		
 			end
-			else if(N_load_sig_1 && !N_load_sig)begin
-				chr_3 <= 4'd11;
-				lne <= 4'd09;
-			end
-			else if (N_save_sig || N_load_sig)begin
-				chr_3 <= cur_h_x;
-				lne <= cur_h_y;
-			end		
-		end
-		if (cont_cnt == 2)begin
-			if(N_save_sig_1 || N_load_sig_1)
-				slide_val <= N_sound_nr;
-			else 
-				slide_val <= edit_chr;
-		end
-		if (cont_cnt == 3)begin
-			if (slide_bar_hit && (slide_scale < 128)) slide_val <= slide_scale;
-			else if (minus_hit && (slide_val != 0))
-//			else if (minus_hit)
-				slide_val <= slide_val - 1;
-			else if (plus_hit && slide_val < 127)
-//			else if (plus_hit)
-				slide_val <= slide_val + 1;		
-		end
-		if(cont_cnt == 4)begin
-			if (slide_bar_hit)begin
-				write_slide <= (~N_save_sig_1 | ~N_load_sig_1);
+			if (cont_cnt == 2)begin
 				if(N_save_sig_1 || N_load_sig_1)
-					N_sound_nr <= slide_val;
+					slide_val <= N_sound_nr;
+				else 
+					slide_val <= edit_chr;
 			end
-		end
-		if(cont_cnt == 5)begin
-			write_slide <= 1'b0;
-		end
+			if (cont_cnt == 3)begin
+				if (slide_bar_hit && (slide_scale < 128)) slide_val <= slide_scale;
+				else if (minus_hit && (slide_val != 0))
+	//			else if (minus_hit)
+					slide_val <= slide_val - 1;
+				else if (plus_hit && slide_val < 127)
+	//			else if (plus_hit)
+					slide_val <= slide_val + 1;		
+			end
+			if(cont_cnt == 4)begin
+				if (slide_bar_hit)begin
+					write_slide <= (~N_save_sig_1 | ~N_load_sig_1);
+					if(N_save_sig_1 || N_load_sig_1)
+						N_sound_nr <= slide_val;
+				end
+			end
+			if(cont_cnt == 5)begin
+				write_slide <= 1'b0;
+				end
+			end
 		end
 	end
 
