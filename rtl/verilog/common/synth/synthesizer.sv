@@ -123,7 +123,7 @@ wire 	key_on[VOICES];
 wire 	[7:0]	key_val[VOICES];
 wire 	[7:0]	vel_on[VOICES];
 wire ctrl_cmd,pitch_cmd,sysex_cmd;
-wire[7:0] ctrl,cur_data,sysex_data[3];
+wire[7:0] ctrl,ctrl_data,sysex_data[3];
 wire [V_WIDTH:0]	active_keys;
 wire 	off_note_error;
 
@@ -209,7 +209,7 @@ MIDI_UART MIDI_UART_inst (
 
 midi_decoder #(.VOICES(VOICES),.V_WIDTH(V_WIDTH)) midi_decoder_inst(
 // inputs
-	.clock_25	( CLOCK_25 ),		// 25 Mhz clock    		
+	.CLOCK_25	( CLOCK_25 ),		// 25 Mhz clock    		
 	.sys_clk	( sysclk ),		//system clock		
 	.iRST_N		(iRST_N) ,		// input  reset_sig
 	.byteready_in	(byteready),		//midi data ready
@@ -221,10 +221,10 @@ midi_decoder #(.VOICES(VOICES),.V_WIDTH(V_WIDTH)) midi_decoder_inst(
 	.key_on		( key_on  ),		// key trigers
 	.key_val	( key_val ),		// key midi number
 	.vel_on		( vel_on ),		// key velocity
-	.ctrl_cmd	( ctrl_cmd ),		// 1 on first databyte 0 on second
+	.octrl_cmd	( ctrl_cmd ),		// 1 on first databyte 0 on second
 	.pitch_cmd	( pitch_cmd ),		// 1 on first databyte 0 on second
-	.ctrl		( ctrl),		// Controller nr.
-	.cur_data	( cur_data),		// Controller Data
+	.octrl		( ctrl),		// Controller nr.
+	.octrl_data	( ctrl_data),		// Controller Data
 	.sysex_cmd	( sysex_cmd ),		// 1 on last databyte 
 	.sysex_data	( sysex_data ),		// Controller Data
 	.active_keys	( active_keys ),	//
@@ -233,13 +233,13 @@ midi_decoder #(.VOICES(VOICES),.V_WIDTH(V_WIDTH)) midi_decoder_inst(
 
 	
 midi_controllers_unit #(.VOICES(VOICES),.V_OSC(V_OSC)) midi_controllers(
-	.iCLK			( CLOCK_25),
+	.CLOCK_25			( CLOCK_25 ),
 	.iRST_n			(DLY2),
 	.SW 			(SW),
 // from midi_decoder
-	.ctrl_cmd		( ctrl_cmd ), 
-	.ctrl			( ctrl ), 
-	.cur_data		( cur_data ), 
+	.ictrl_cmd		( ctrl_cmd ), 
+	.ictrl			( ctrl ), 
+	.ictrl_data		( ctrl_data ), 
 	.sysex_data		( sysex_data ), 		// Controller Data
 	.pitch_cmd		( pitch_cmd ),
 	.sysex_cmd		( sysex_cmd ),			// 1 on last databyte 
