@@ -2,3 +2,4 @@ syntax: glob
 *.bak
 */db
 */*_db/compiled_partitions/
+*~
