@@ -31,7 +31,7 @@ module midi_controllers_unit (
 	output reg signed [7:0] mat_buf[32][V_OSC],
 //	output reg signed [7:0] com_buf[16],
 	output reg signed [7:0] com_buf[32],
-	output reg [13:0]pitch_val = 8191,
+	output reg [13:0]pitch_val,
 	input N_save_sig,
 	input N_load_sig
 );
@@ -396,7 +396,16 @@ assign midi_data[56] = osc_buf[4'h8][1];
 		end
 	end
 
-	always @(posedge pitch_cmd_r)	pitch_val <= {ictrl_data[6:0],ictrl[6:0]};
+	always @(posedge pitch_cmd_r)	pitch_lsb <= ictrl[6:0];
+
+	always @(negedge iRST_n or negedge pitch_cmd_r)begin
+		if (!iRST_n)	
+			pitch_val <= 8191;
+		else if(!pitch_cmd_r)
+			pitch_val <= {ictrl_data[6:0],pitch_lsb};	
+	end
+
+//	always @(posedge pitch_cmd_r)	pitch_val <= {ictrl_data[6:0],ictrl[6:0]};
 
 //	always @(negedge pitch_cmd_r)	pitch_val <= {ictrl_data[6:0],pitch_lsb};
 
@@ -428,9 +437,9 @@ assign midi_data[56] = osc_buf[4'h8][1];
 				osc_buf[4'h4][a1] <= 8'h00;
 				osc_buf[4'h5][a1] <= 8'h00;
 				osc_buf[4'h6][a1] <= 8'h00;
-				osc_buf[4'h7][a1] <= 8'h40;
+				osc_buf[4'h7][a1] <= 8'h00;
 				osc_buf[4'h8][a1] <= 8'h40;
-				osc_buf[4'h9][a1] <= 8'h00;
+				osc_buf[4'h9][a1] <= 8'h40;
 				osc_buf[4'hA][a1] <= 8'h00;
 				osc_buf[4'hB][a1] <= 8'h00;
 				osc_buf[4'hC][a1] <= 8'h00;
@@ -472,9 +481,9 @@ assign midi_data[56] = osc_buf[4'h8][1];
 			com_buf[4'hE] <= 8'h00;
 			com_buf[4'hF] <= 8'h00;
 		end	else begin
-//		else if(write_slide_r)begin 
-//			midi_data[disp_val] <= slide_val;
-//		end
+		if(write_slide_r)begin 
+			midi_data[disp_val] <= slide_val;
+		end
 
 			if (data_ready) begin
 				case(bnk_inx)
