@@ -348,7 +348,7 @@ assign midi_data[56] = osc_buf[4'h8][1];
 		ctrl_cmd_r <= ictrl_cmd;
 		ctrl_data_r <= ictrl_data;
 		sysex_cmd_r <= sysex_cmd;
-		data_ready <= (ictrl_cmd & !ctrl_cmd_r) | (sysex_cmd & ! sysex_cmd_r);
+		data_ready <= (!ictrl_cmd & ctrl_cmd_r) | (!sysex_cmd & sysex_cmd_r);
 		pitch_cmd_r <= pitch_cmd;
 		N_adr_data_rdy_r <= N_adr_data_rdy;
 		N_synth_in_data_r <= N_synth_in_data;
@@ -362,12 +362,12 @@ assign midi_data[56] = osc_buf[4'h8][1];
 
 	always @(posedge ictrl_cmd) ctrl_r <= ictrl;
 
-	always @(posedge sysex_cmd_r or posedge ctrl_cmd_r)begin
-		if(sysex_cmd_r) begin : sysex_mappings;
+	always @(negedge sysex_cmd_r or negedge ctrl_cmd_r)begin
+		if(!sysex_cmd_r) begin : sysex_mappings;
 			data <= sysex_data[2]; row_adr_1 <= com_buf[4][3:0];
 			bnk_inx <= sysex_data[0]; col_adr_0 <= sysex_data[1];
 		end
-		else if(ctrl_cmd_r) begin : CC_mappings; // @brief Korg Kronos
+		else if(!ctrl_cmd_r) begin : CC_mappings; // @brief Korg Kronos
 			if(ctrl_r >= 8'd22 && ctrl_r <= 8'd29) begin // @brief Buttons Upper
 				data <= ictrl - 8'd22;
 				col_inx <= (ictrl_data & 8'h01);
