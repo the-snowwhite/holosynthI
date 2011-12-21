@@ -138,8 +138,7 @@ always@(posedge sys_clk) transmit_en_dly1 <= transmit_en;
 			end
 		end
 		else begin
-
-			//		if (cont_cnt == 0)
+//			write_slide <= 1'b0;
 			if (t_cnt == 7)begin
 				hit_x <= x; hit_y <= y;		
 			end
@@ -179,9 +178,10 @@ always@(posedge sys_clk) transmit_en_dly1 <= transmit_en;
 			end
 			if(cont_cnt == 4)begin
 				if (slide_bar_hit)begin
-					write_slide <= (~N_save_sig_1 | ~N_load_sig_1);
+//					write_slide <= (~N_save_sig_1 | ~N_load_sig_1);
 					if(N_save_sig_1 || N_load_sig_1)
-						N_sound_nr <= slide_val;
+						write_slide <= 1'b1;							
+//						N_sound_nr <= slide_val;
 				end
 			end
 			if(cont_cnt == 5)begin

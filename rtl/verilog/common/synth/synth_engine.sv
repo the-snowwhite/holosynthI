@@ -153,8 +153,8 @@ wire [7:0]voice_free_r2[VOICES][V_OSC];
 		.rkey( rkey_val ),
 		.osc_ct( osc_buf[0]  ),// osc_ct
 		.osc_ft( osc_buf[1] ),// osc_ft
-		.b_ct ( osc_buf[7] ),// base_ct
-		.b_ft ( osc_buf[8] ),// base_ft
+		.b_ct ( osc_buf[8] ),// base_ct
+		.b_ft ( osc_buf[9] ),// base_ft
 		.pb_value( com_buf[0] ),// pb_value
 		.pitch_val( pitch_val ),
 		.k_scale ( osc_buf[5] ),// k_scale
