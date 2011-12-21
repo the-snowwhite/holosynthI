@@ -246,9 +246,9 @@ assign disp_data[51] = (!SW[16]) ? (osc_buf[4'h3][1]):(8'h00);
 assign disp_data[52] = (!SW[16]) ? (osc_buf[4'h4][1]):(8'h00);
 assign disp_data[53] = (!SW[16]) ? (osc_buf[4'h5][1]):(8'h00);
 assign disp_data[54] = (!SW[16]) ? (osc_buf[4'h6][1]):(8'h00);
-assign disp_data[55] = (!SW[16]) ? (osc_buf[4'h7][1]):(8'h00);					
+assign disp_data[55] = (!SW[16]) ? (osc_buf[4'h8][1]):(8'h00);					
 // 6 -- b111					
-assign disp_data[56] = (!SW[16]) ? (osc_buf[4'h8][1]):(8'h00);					
+assign disp_data[56] = (!SW[16]) ? (osc_buf[4'h9][1]):(8'h00);					
 // ----------            --------------------        //
 
 
@@ -295,9 +295,9 @@ assign midi_data[35] = osc_buf[4'h3][0];
 assign midi_data[36] = osc_buf[4'h4][0];
 assign midi_data[37] = osc_buf[4'h5][0];
 assign midi_data[38] = osc_buf[4'h6][0];
-assign midi_data[39] = osc_buf[4'h7][0];					
+assign midi_data[39] = osc_buf[4'h8][0];					
 // 4 -- b101					
-assign midi_data[40] = osc_buf[4'h8][0];					
+assign midi_data[40] = osc_buf[4'h9][0];					
 assign midi_data[41] = com_buf[4'h0];					
 assign midi_data[42] = com_buf[4'h1];					
 // 5 -- b110
@@ -308,9 +308,9 @@ assign midi_data[51] = osc_buf[4'h3][1];
 assign midi_data[52] = osc_buf[4'h4][1];
 assign midi_data[53] = osc_buf[4'h5][1];
 assign midi_data[54] = osc_buf[4'h6][1];
-assign midi_data[55] = osc_buf[4'h7][1];					
+assign midi_data[55] = osc_buf[4'h8][1];					
 // 6 -- b111					
-assign midi_data[56] = osc_buf[4'h8][1];					
+assign midi_data[56] = osc_buf[4'h9][1];					
 // ----------            --------------------        //
 
 /////////////	Fetch Controllers			/////////////
@@ -335,7 +335,7 @@ assign midi_data[56] = osc_buf[4'h8][1];
 	reg signed[7:0]osc_feedb[V_OSC]; 
 
 //	assign o_index = com_buf[4];
-	reg [3:0]col_inx;
+	reg col_inx,cc_col_inx;
 	reg [4:0]bnk_inx;
 	
 	reg N_adr_data_rdy_r, N_load_sig_r, N_save_sig_r, write_slide_r; 
@@ -366,31 +366,33 @@ assign midi_data[56] = osc_buf[4'h8][1];
 		if(sysex_cmd_r) begin : sysex_mappings;
 			data <= sysex_data[2]; row_adr_1 <= com_buf[4][3:0];
 			bnk_inx <= sysex_data[0]; col_adr_0 <= sysex_data[1];
+			col_inx <= sysex_data[1][4]; 
 		end
-		else if(ctrl_cmd_r) begin : CC_mappings; // @brief Korg Kronos
+		else if(ctrl_cmd_r) begin : CC_mappings; // @brief CC mappings (Korg Kronos)
+
 			if(ctrl_r >= 8'd22 && ctrl_r <= 8'd29) begin // @brief Buttons Upper
 				data <= ictrl - 8'd22;
-				col_inx <= (ictrl_data & 8'h01);
-				bnk_inx <= 4'd4; row_adr_1 <= 4'd0; col_adr_0 <= 4'd5; 
+				bnk_inx <= 4'd5; row_adr_1 <= 4'd0; col_adr_0 <= 4'd6; 
+				cc_col_inx <= (ictrl_data & 8'h01);
 			end 
 	
 			else if(ictrl == 8'd39) begin // @brief Volume (Master fader)
-				data <= ictrl_data;						
+				data <= ictrl_data;	col_inx <= 1'b0;					
 				bnk_inx <= 4'd4; row_adr_1 <= 4'd0; col_adr_0 <= 1'b1; 
 			end 
 						
 			else if(ictrl >= 8'd48 && ictrl <= 8'd55) begin// @brief Faders
-				data <= ictrl_data;						
+				data <= ictrl_data;	col_inx <= cc_col_inx;						
 				bnk_inx <= 4'd0; row_adr_1 <= com_buf[4][3:0]; col_adr_0 <= ictrl - 8'd48;  
 			end 
 	
 			else if(ictrl >= 8'd56 && ictrl <= 8'd63)begin // @brief Buttons Lower
 				data <= ictrl - 8'd56;						
-				bnk_inx <= 4'd4; row_adr_1 <= 4'd0; col_adr_0 <= 4'd4; 
+				bnk_inx <= 4'd4; row_adr_1 <= 4'd0; col_adr_0 <= 4'd4;
 			end 
 	
 			else if(ictrl >= 8'd76 && ictrl <= 8'd83)begin // @brief Knobs
-				data <= ictrl_data;						
+				data <= ictrl_data;	col_inx <= cc_col_inx;						
 				bnk_inx <= 4'd1; row_adr_1 <= com_buf[4][3:0]; col_adr_0 <= ictrl - 8'd76;
 			end 
 		end
@@ -411,7 +413,7 @@ assign midi_data[56] = osc_buf[4'h8][1];
 
 	always @(negedge iRST_n
 //			or posedge sysex_cmd_r or posedge write_slide_r)begin
-			or posedge data_ready) begin
+			or negedge data_ready) begin
 		if (!iRST_n) begin 		
 			for(a1=0;a1<V_OSC;a1++)begin
 				env_buf[4'h0][a1] <= 8'h00;
@@ -485,7 +487,7 @@ assign midi_data[56] = osc_buf[4'h8][1];
 			midi_data[disp_val] <= slide_val;
 		end
 
-			if (data_ready) begin
+			if (!data_ready) begin
 				case(bnk_inx)
 					4'h0:	env_buf[col_adr_0[3:0]+(col_inx<<3)][row_adr_1] <= data;
 					4'h1:	osc_buf[col_adr_0[3:0]+(col_inx<<3)][row_adr_1] <= data;
