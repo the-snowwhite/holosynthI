@@ -383,7 +383,7 @@ assign LCD_NCLK = VGA_CLK;
 	
 synthesizer  synthesizer_inst(
 	.CLOCK_50(CLOCK_50) ,	// input  CLOCK_50_sig
-	.oRST_0(iRST_n),
+	.DLY0(iRST_n),
 	.MIDI_Rx_DAT(UART_RXD) ,	// input  MIDI_DAT_sig
 	.button( KEY[3:0] ),			//	Button[3:0]
 	.SW	( SW[17:0]),
