@@ -65,15 +65,18 @@ module synthesizer (
 );
 
 
+//parameter VOICES = 64;
 //parameter VOICES = 32;
-
-//parameter VOICES = 16;
-parameter VOICES = 8;
+parameter VOICES = 16;
+//parameter VOICES = 8;
 //parameter VOICES = 4;
 //parameter VOICES = 2;
 // --> !!! Min 2 voices ---//!parameter VOICES = 1;
 
+//parameter V_OSC = 8;  //!NEEK
+//parameter V_OSC = 6;
 parameter V_OSC = 4;
+//parameter V_OSC = 3;
 //parameter V_OSC = 2;
 //parameter V_OSC = 1;
 
