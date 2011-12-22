@@ -316,6 +316,8 @@ wire			HC_ADC_CS_N;
 
 `define _Synth
 `define _Graphics
+`define _LTM_Graphics	         
+
 //`define _Nios
 
 assign  	HC_GREST       = 1'b1;
@@ -344,38 +346,38 @@ wire [7:0]N_synth_in_data;
  
 `ifdef _Nios
     nios_2 u0 (
-        .in_port_to_the_button                 (BUTTON),                 //            button_external_connection.export
-        .sdram_clk                             (),                             //                           altpll_0_c1.clk
-        .phasedone_from_the_altpll_0           (),           //            altpll_0_phasedone_conduit.export
-        .reset_n                               (1'b1),                               //                    clk_0_clk_in_reset.reset_n
-        .adsc_n_to_the_ssram_0                 (SRAM_ADSC_N),                 //                    tri_state_bridge_1.adsc_n_to_the_ssram_0
-        .bw_n_to_the_ssram_0                   (SRAM_BE_N),                   //                                      .bw_n_to_the_ssram_0
-        .chipenable1_n_to_the_ssram_0          (SRAM_CE1_N),          //                                      .chipenable1_n_to_the_ssram_0
-        .reset_n_to_the_ssram_0                (),                //                                      .reset_n_to_the_ssram_0
-        .data_to_and_from_the_ssram_0          (FLASH_SRAM_DQ),          //                                      .data_to_and_from_the_ssram_0
-        .bwe_n_to_the_ssram_0                  (SRAM_WE_N),                  //                                      .bwe_n_to_the_ssram_0
-        .outputenable_n_to_the_ssram_0         (SRAM_OE_N),         //                                      .outputenable_n_to_the_ssram_0
-        .address_to_the_ssram_0                (FLASH_SRAM_A),                //                                      .address_to_the_ssram_0
-        .ssram_clk                             (SRAM_CLK),                               //                            c0_out_clk.clk
-        .areset_to_the_altpll_0                (1'b0),                //               altpll_0_areset_conduit.export
-        .locked_from_the_altpll_0              (),              //               altpll_0_locked_conduit.export
-        .clk_0                                 (CLK50),                                 //                          clk_0_clk_in.clk
-        .out_port_from_the_N_adr_dat_rdy       (N_adr_data_rdy),       //     N_adr_dat_rdy_external_connection.export
-        .out_port_from_the_N_adr               (N_adr),               //             N_adr_external_connection.export
-        .in_port_to_the_N_synth_out_data       (N_synth_out_data),       //  N_synth_out_data_external_connection.export
-        .in_port_to_the_N_irq                  (N_irq),                  //             N_irq_external_connection.export
+        .in_port_to_the_button                 (BUTTON),     //      button_external_connection.export
+        .sdram_clk                             (),           //      altpll_0_c1.clk
+        .phasedone_from_the_altpll_0           (),           //       altpll_0_phasedone_conduit.export
+        .reset_n                               (1'b1),       //      clk_0_clk_in_reset.reset_n
+        .adsc_n_to_the_ssram_0                 (SRAM_ADSC_N),//  tri_state_bridge_1.adsc_n_to_the_ssram_0
+        .bw_n_to_the_ssram_0                   (SRAM_BE_N),  //       .bw_n_to_the_ssram_0
+        .chipenable1_n_to_the_ssram_0          (SRAM_CE1_N), //     .chipenable1_n_to_the_ssram_0
+        .reset_n_to_the_ssram_0                (),             //   .reset_n_to_the_ssram_0
+        .data_to_and_from_the_ssram_0          (FLASH_SRAM_DQ),//    .data_to_and_from_the_ssram_0
+        .bwe_n_to_the_ssram_0                  (SRAM_WE_N),    //    .bwe_n_to_the_ssram_0
+        .outputenable_n_to_the_ssram_0         (SRAM_OE_N),    //    .outputenable_n_to_the_ssram_0
+        .address_to_the_ssram_0                (FLASH_SRAM_A), //     .address_to_the_ssram_0
+        .ssram_clk                             (SRAM_CLK),      //   c0_out_clk.clk
+        .areset_to_the_altpll_0                (1'b0),         //    altpll_0_areset_conduit.export
+        .locked_from_the_altpll_0              (),              //   altpll_0_locked_conduit.export
+        .clk_0                                 (CLK50),          //  clk_0_clk_in.clk
+        .out_port_from_the_N_adr_dat_rdy       (N_adr_data_rdy),  //     N_adr_dat_rdy_external_connection.export
+        .out_port_from_the_N_adr               (N_adr),               //   N_adr_external_connection.export
+        .in_port_to_the_N_synth_out_data       (N_synth_out_data), //  N_synth_out_data_external_connection.export
+        .in_port_to_the_N_irq                  (N_irq),            //   N_irq_external_connection.export
         .in_port_to_the_N_synth_sound_num      (N_sound_nr),      // N_synth_sound_num_external_connection.export
-        .out_port_from_the_N_synth_in_data     (N_synth_in_data),     //   N_synth_in_data_external_connection.export
+        .out_port_from_the_N_synth_in_data     (N_synth_in_data), //   N_synth_in_data_external_connection.export
         .spi_cs_n_from_the_sd_controller_0     (HC_SD_DAT3),     //   sd_controller_0_avalon_slave_export.cs_n
-        .spi_data_out_from_the_sd_controller_0 (HC_SD_CMD), //                                      .data_out
-        .spi_data_in_to_the_sd_controller_0    (HC_SD_DAT),    //                                      .data_in
-        .spi_clk_from_the_sd_controller_0      (HC_SD_CLK)      //                                      .clk
+        .spi_data_out_from_the_sd_controller_0 (HC_SD_CMD), //        .data_out
+        .spi_data_in_to_the_sd_controller_0    (HC_SD_DAT),    //      .data_in
+        .spi_clk_from_the_sd_controller_0      (HC_SD_CLK)      //      .clk
     );
 `endif
 
 synthesizer  synthesizer_inst(
 	.CLOCK_50(CLK50),					
-	.oRST_0(iRST_n),
+	.DLY0 (iRST_n),
 	.MIDI_Rx_DAT(HC_UART_RXD),				//	MIDI Data
 	.button( BUTTON[4:1]   ),			//	Button[4:1]
 	.SW	( ),

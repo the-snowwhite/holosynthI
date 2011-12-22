@@ -24,8 +24,8 @@ parameter	CHANNEL_NUM		=	2;			//	Dual Channel
 reg		[8:0]	BCK_DIV;
 reg		[12:0]	LRCK_1X_DIV;
 //reg		[10:0]	LRCK_8X_DIV;
-reg		[10:0]	sCLK_XV_DIV;
-reg		[9:0]	sCLK_2XV_DIV;
+//reg		[10:0]	sCLK_XV_DIV;
+//reg		[9:0]	sCLK_2XV_DIV;
 reg		[9:0]	sCLK_XVXOSC_DIV;
 reg		[8:0]	sCLK_XVXENVS_DIV;
 
@@ -66,55 +66,14 @@ always@(posedge tCLK or negedge iRST_N)
 begin
 	if(!iRST_N)
 	begin
-//		LRCK_1X_DIV		<=	0;
-//		LRCK_8X_DIV		<=	0;
-//		sCLK_XV_DIV	<=	0;
-//		sCLK_2XV_DIV	<=	0;
 		sCLK_XVXOSC_DIV 	<=	0;
 		sCLK_XVXENVS_DIV 	<=	0;
-//		LRCK_1X		<=	0;
-//		LRCK_8X		<=	0;
-//		sCLK_XV	<=	0;
-//		sCLK_2XV	<=	0;
 		sCLK_XVXOSC	<=	0;
 		sCLK_XVXENVS	<=	0;
 	end
 	else
 	begin
-		//	LRCK 1X
-/*		if(LRCK_1X_DIV >= AUDIO_CLK/(SAMPLE_RATE*2)-1 )
-		begin
-			LRCK_1X_DIV	<=	0;
-			LRCK_1X	<=	~LRCK_1X;
-		end
-		else
-		LRCK_1X_DIV		<=	LRCK_1X_DIV+1;
-		//	LRCK 8X 
-		if(LRCK_8X_DIV >= AUDIO_CLK/(SAMPLE_RATE*16)-1 )
-		begin
-			LRCK_8X_DIV	<=	0;
-			LRCK_8X	<=	~LRCK_8X;
-		end
-		else
-		LRCK_8X_DIV		<=	LRCK_8X_DIV+1;		
-		//	LRCK 16X 
-		if(sCLK_XV_DIV >= AUDIO_CLK/(SAMPLE_RATE*CHANNEL_NUM*VOICES*2)-1 )
-		begin
-			sCLK_XV_DIV	<=	0;
-			sCLK_XV	<=	~sCLK_XV;
-		end
-		else
-		sCLK_XV_DIV		<=	sCLK_XV_DIV+1;		
-		//	LRCK 32X == BCLK
-		if(sCLK_2XV_DIV >= AUDIO_CLK/(SAMPLE_RATE*CHANNEL_NUM*VOICES*4)-1 )
-		begin
-			sCLK_2XV_DIV	<=	0;
-			sCLK_2XV	<=	~sCLK_2XV;
-		end
-		else
-		sCLK_2XV_DIV		<=	sCLK_2XV_DIV+1;		
-		//	LRCK 64X
-*/		if(sCLK_XVXOSC_DIV >= AUDIO_CLK/(SAMPLE_RATE*CHANNEL_NUM*VOICES*V_OSC*2)-1 )
+		if(sCLK_XVXOSC_DIV >= AUDIO_CLK/(SAMPLE_RATE*CHANNEL_NUM*VOICES*V_OSC*2)-1 )
 		begin
 			sCLK_XVXOSC_DIV	<=	0;
 			sCLK_XVXOSC	<=	~sCLK_XVXOSC;
