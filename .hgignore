@@ -3,3 +3,5 @@ syntax: glob
 */db
 */*_db/compiled_partitions/
 *~
+*.rpt
+*.summary
