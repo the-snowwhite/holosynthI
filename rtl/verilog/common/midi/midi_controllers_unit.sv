@@ -412,7 +412,7 @@ assign midi_data[56] = osc_buf[4'h9][1];
 //	always @(negedge pitch_cmd_r)	pitch_val <= {ictrl_data[6:0],pitch_lsb};
 
 	always @(negedge iRST_n
-//			or posedge sysex_cmd_r or posedge write_slide_r)begin
+/*			or posedge N_adr_data_rdy_r */ or posedge write_slide_r
 			or negedge data_ready) begin
 		if (!iRST_n) begin 		
 			for(a1=0;a1<V_OSC;a1++)begin
@@ -483,11 +483,11 @@ assign midi_data[56] = osc_buf[4'h9][1];
 			com_buf[4'hE] <= 8'h00;
 			com_buf[4'hF] <= 8'h00;
 		end	else begin
-		if(write_slide_r)begin 
-			midi_data[disp_val] <= slide_val;
-		end
+			if(write_slide_r)begin 
+				midi_data[disp_val] <= slide_val;
+			end
 
-			if (!data_ready) begin
+			else if (!data_ready) begin
 				case(bnk_inx)
 					4'h0:	env_buf[col_adr_0[3:0]+(col_inx<<3)][row_adr_1] <= data;
 					4'h1:	osc_buf[col_adr_0[3:0]+(col_inx<<3)][row_adr_1] <= data;
@@ -497,8 +497,8 @@ assign midi_data[56] = osc_buf[4'h9][1];
 					default:; 
 				endcase
 			end	
-	
-/*			else if(N_adr_data_rdy_r)begin
+/*	
+			else if(N_adr_data_rdy_r)begin
 				if(N_load_sig_r)begin
 					case(N_adr_r[8:7])
 						2'b00:	env_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]] <= N_synth_in_data_r;	
@@ -508,11 +508,9 @@ assign midi_data[56] = osc_buf[4'h9][1];
 					endcase
 				end
 			end
-*/	
-			
-		end
+*/		end
 	end
-/*
+
 	always @(posedge N_adr_data_rdy_r)begin
 //	if(N_adr_data_rdy_r)begin
 		if(N_save_sig_r)begin
@@ -526,7 +524,7 @@ assign midi_data[56] = osc_buf[4'h9][1];
 		else N_synth_out_data <= 8'h00;	
 //		end	
 	end
-*/	
+	
 		
 
 
