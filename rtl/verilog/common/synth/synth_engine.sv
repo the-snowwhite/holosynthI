@@ -183,9 +183,11 @@ wire [7:0]voice_free_r2[VOICES][V_OSC];
 		.iRST_N(iRST_N) ,	// input  iRST_N_sig
     	.switch	  ( switch ),			//input			
 		.level_mul(level_mul), 	// output [7:0] level_mul_sig
-		.osc_lvl( osc_buf[2] ) ,	// input  rate 0:3 // r
-		.osc_mod( osc_buf[3] ) ,	// input level 0:3 // l
-		.osc_feedb(osc_buf[4]) ,	// input  key_on_sig
+		.osc_lvl( osc_buf[2] ) ,	// 
+		.osc_mod( osc_buf[3] ) ,	// 
+		.osc_feedb(osc_buf[4]) ,	// 
+		.osc_mod_in( osc_buf[10] ) ,	// 
+		.osc_feedb_in(osc_buf[11]) ,	// 
 		.m_vol ( com_buf[1] ),
 		.mat_buf ( mat_buf ),
 		.sine_lut_out ( sine_lut_out ),
