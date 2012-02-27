@@ -348,7 +348,7 @@ assign RLED[8:1] = {voice_free[7],voice_free[6],voice_free[5],voice_free[4],
 
 
 // LCD Display + Touch + +++++++++++++++++++--- Color ----------------------------------//
-	wire [7:0]disp_data[64];
+	wire [7:0]disp_data[94];
 		
 display display_inst_1(		
 	// VGA output //		

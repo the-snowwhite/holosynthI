@@ -7,7 +7,7 @@ module touch(
 	input new_coord_r,
 	input penirq_n,
 	input transmit_en,
-	input [7:0]disp_data[64],
+	input [7:0]disp_data[94],
 	input  N_adr_9,				// end transfer sig
 
 	// Output Port(s)
@@ -54,11 +54,11 @@ wire [7:0] delta_hit_x_abs = (delta_hit_x_pos) ? x - hit_x : hit_x - x;
 
 wire [7:0] delta_y_abs = (delta_y_pos) ? y - hit_y : hit_y - y;
 
-assign cur_h_x = (hit_x-x_off)/19;
-assign cur_h_y = (hit_y-x_off)/8;
+assign cur_chr_3 = (hit_x-x_off)/19;
+assign cur_lne = (hit_y-x_off)>>3;
 
 
-wire no_drag = ((delta_hit_x_abs <=3) && (delta_y_abs <=9));
+wire drag = ((delta_hit_x_abs >=3) && (delta_y_abs >=9));
 
 wire in_textarea = (hit_x <=240 && hit_y <=134);
 
@@ -69,20 +69,20 @@ wire plus_hit = ((hit_x >= 221 && hit_x <= 240)
 wire slide_bar_hit = ((hit_x >= 40 && hit_x <= 220)
 			&& (hit_y >= 155 && hit_y <= 168));
 
-wire write_pressed =	((hit_y >=95 && hit_y <=101) && // write line
-							(hit_x >= 178 && hit_x <=200));	// write pressed
+wire save_pressed =	((hit_y >=44 && hit_y <=50) && // write line
+							(hit_x >= 178 && hit_x <=196));	// write pressed
 
-wire load_pressed =	((hit_y >=78 && hit_y <=85) && // write line
-							(hit_x >= 178 && hit_x <=200));	// write pressed
+wire load_pressed =	((hit_y >=35 && hit_y <=42) && // write line
+							(hit_x >= 178 && hit_x <=196));	// write pressed
 reg N_save_sig_1, N_load_sig_1;							
 
-wire cancel = ((hit_y >=94 && hit_y <=101) && // write line
-							(hit_x >= 94 && hit_x <=121));	// cancel pressed
+wire cancel = ((hit_y >=9 && hit_y <=22) && // write line
+							(hit_x >= 205 && hit_x <=237));	// cancel pressed
 
-wire confirm = ((hit_y >=94 && hit_y <=101) && // write line
-							(hit_x >= 137 && hit_x <=172));	// confirm pressed
+wire confirm = ((hit_y >=107 && hit_y <=113) && // write line
+							(hit_x >= 206 && hit_x <=236));	// confirm pressed
 
-wire [7:0] slide_scale = (((x - 40)<<7)/180);
+wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 
 	reg [7:0] edit_chr;
 	reg [2:0] penirq_cnt;
@@ -90,13 +90,36 @@ wire [7:0] slide_scale = (((x - 40)<<7)/180);
 	
 	wire sample_hit = (penirq_cnt >= 3'd3);
 	
-	reg sample_hit_r, transmit_en_dly;
+	reg sample_hit_r, transmit_en_dly, end_cnt_max_r,start_p_cnt_r;
+	reg in_textarea_r, cancel_r, load_pressed_r, save_pressed_r, confirm_r, plus_hit_r, minus_hit_r, drag_r,slide_bar_hit_r;
+	reg [3:0] cur_chr_3_r, cur_lne_r;
+
+	reg load, diskop;
+	
+	wire end_cnt_max = (end_cnt >= 8) ? 1'b1 : 1'b0;
+
+	wire [3:0] cur_x, cur_chr_3, cur_y, cur_lne;
+	
+	wire start_p_cnt = transmit_en_r && !transmit_en_dly;	
 	
 	always @(posedge sys_clk) begin
 		sample_hit_r <= sample_hit;
 		penirq_n_r <= penirq_n;
 		transmit_en_r <= transmit_en;
 		transmit_en_dly <= transmit_en_r;
+		end_cnt_max_r <= end_cnt_max;
+		cur_chr_3_r <= cur_chr_3;
+		cur_lne_r <= cur_lne;
+		start_p_cnt_r <= start_p_cnt;
+		in_textarea_r <= in_textarea;
+		cancel_r <= cancel;
+		load_pressed_r <= load_pressed;
+		save_pressed_r <= save_pressed;
+		confirm_r <= confirm;
+		plus_hit_r <= plus_hit;
+		minus_hit_r <= minus_hit;
+		drag_r <= drag;
+		slide_bar_hit_r <= slide_bar_hit;
 	end
 	
 	always @(negedge transmit_en_r)begin
@@ -114,18 +137,14 @@ wire [7:0] slide_scale = (((x - 40)<<7)/180);
 		end
 	end
 	
-	always @(negedge iRST_n or posedge transmit_en_r or posedge sample_hit_r or negedge transmit_en_dly) begin
+	always @(negedge iRST_n or posedge start_p_cnt_r or posedge sample_hit_r or posedge sample_hit_r) begin
 		if (!iRST_n)begin
 			penirq_cnt_en <= 1'b0;
 		end else begin 
-			if (transmit_en_r)begin
-				if (!sample_hit_r && !transmit_en_dly)begin
-					penirq_cnt_en <= 1'b1;
-				end
-				else if (sample_hit_r && transmit_en_dly)begin
-					penirq_cnt_en <= 1'b0;
-				end
+			if (start_p_cnt_r )begin
+				penirq_cnt_en <= ~sample_hit_r;
 			end
+			else if(sample_hit_r) penirq_cnt_en <= ~sample_hit_r; 
 		end
 	end	
 
@@ -145,26 +164,28 @@ wire [7:0] slide_scale = (((x - 40)<<7)/180);
 	end	
 	
 	always @(posedge sys_clk)begin
-		case(lne)
-			1: if(chr_3 <=7)disp_val <= chr_3;
-			2: if(chr_3 <=7)disp_val <= chr_3+8'd8;
-			3: if(chr_3<=7)disp_val <= chr_3+8'd16;
-			4: if(chr_3<=7)disp_val <= chr_3+8'd24;
-			7: begin 
-					if(chr_3<=8'd8)disp_val <= chr_3+8'd32;
-					else if (chr_3>=8'd10)disp_val <= chr_3+8'd31;
+		case(cur_lne_r)
+			1: begin if(cur_chr_3_r <=7)disp_val <= cur_chr_3_r;
+					else if (cur_chr_3_r <=9)disp_val <= cur_chr_3_r +8'd84;
 				end
-			8: if(chr_3<=8'd8)disp_val <= chr_3+8'd48;
-			default: disp_val <= 8'h00; 
+			2: if(cur_chr_3_r <=7)disp_val <= cur_chr_3_r+8'd8;
+			3: if(cur_chr_3_r<=7)disp_val <= cur_chr_3_r+8'd16;
+			4: if(cur_chr_3_r<=7)disp_val <= cur_chr_3_r+8'd24;
+			7: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd32;
+			8: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd48;
+			9: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd64;
+			10: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd80;
+			default: disp_val <= 8'hff; 
 		endcase
-		edit_chr <= disp_data[disp_val];
+		if (disp_val != 8'hff) edit_chr <= disp_data[disp_val];
 	end
 
 
-reg [7:0]t_cnt;
-reg [2:0]cont_cnt;
-reg cont_max_dly1,cont_max_dly2;
+//reg [7:0]t_cnt;
+reg [3:0]end_cnt;
 
+reg cont_max_dly1,cont_max_dly2;
+/*
 	always @(negedge iRST_n or negedge penirq_n or negedge transmit_en)begin
 		if (!iRST_n)begin
 			t_cnt <= 0;
@@ -173,24 +194,76 @@ reg cont_max_dly1,cont_max_dly2;
 			else if(t_cnt <=7) t_cnt <= t_cnt +1;
 		end
 	end
-	always @(negedge iRST_n or negedge penirq_n or negedge transmit_en)begin
+*/
+//		if (end_cnt == 2)begin
+//				if(in_textarea && disp_val != 8'hff )
+//			end
+//		end
+	always @(negedge iRST_n or posedge sys_clk or posedge transmit_en_r)begin
 		if (!iRST_n)begin
-			cont_cnt <= 0;
+			end_cnt <= 0;
 		end else begin
-			if(!transmit_en)begin cont_cnt <= 0;end 
-			else if (t_cnt_max) cont_cnt <= cont_cnt +1;
+			if(transmit_en_r)begin end_cnt <= 0;end 
+			else if (end_cnt_max_r == 0) end_cnt <= end_cnt +1;
 		end
 	end
 
-	wire t_cnt_max = (t_cnt == 8) ? 1'b1 : 1'b0;
-
-	always @(negedge iRST_n or negedge penirq_n or negedge transmit_en)begin
+//		if (end_cnt == 2)begin
+//				if(in_textarea && disp_val != 8'hff )
+//			end
+//		end
+	always @(negedge iRST_n or posedge sys_clk)begin
+		if (!iRST_n)begin
+			chr_3 <= 4'd0;
+			lne <= 4'd0;
+			N_load_sig <= 1'b0;N_save_sig <= 1'b0;diskop <= 1'b0;
+		end
+		else begin 
+			if(diskop)begin
+				if(end_cnt == 1)begin
+					if(confirm_r)begin
+						if(load) N_load_sig <= 1'b1;
+						else N_save_sig <= 1'b1;
+					end
+					else if(cancel_r)begin diskop <= 1'b0;chr_3 <= cur_chr_3_r;lne <= cur_lne_r;end
+				end
+				if(end_cnt == 2)begin
+					if(N_load_sig || N_save_sig)begin
+						N_load_sig <= 1'b0;N_save_sig <= 1'b0;diskop <= 1'b0;
+					end
+				end
+			end
+			else begin
+				if (end_cnt == 1)begin
+					if(in_textarea_r)begin 
+						if(disp_val != 8'hff )begin
+							chr_3 <= cur_chr_3_r;
+							lne <= cur_lne_r;
+							slide_val <= edit_chr;
+						end
+						if(cancel_r)begin diskop  <= 1'b0;chr_3 <= cur_chr_3_r;lne <= cur_lne_r;end
+						if(load_pressed_r)begin diskop <= 1'b1; load <= 1'b1;chr_3 <= cur_chr_3_r;lne <= cur_lne_r;end
+						if(save_pressed_r)begin diskop <= 1'b1; load <= 1'b0;chr_3 <= cur_chr_3_r;lne <= cur_lne_r;end	
+					end
+					else if (slide_bar_hit_r && (slide_scale < 128)) slide_val <= slide_scale;
+					else if (minus_hit_r && (slide_val != 0))
+						slide_val <= slide_val - 1;
+					else if (plus_hit_r && slide_val < 127)
+						slide_val <= slide_val + 1;		
+				end
+				if(end_cnt == 2) if(slide_bar_hit_r || plus_hit_r || minus_hit_r) write_slide <= 1'b1;
+				if(end_cnt == 3) if(slide_bar_hit_r || plus_hit_r || minus_hit_r) write_slide <= 1'b0;
+			end
+		end
+	end
+	
+/*	always @(negedge iRST_n or posedge sys_clk or negedge transmit_en_r)begin
 		if (!iRST_n)begin
 			write_slide <= 1'b0;
 			N_sound_nr <= 8'h00;
 		end
 		else begin 
-			if (!transmit_en)begin
+			if (!transmit_en_r)begin
 				if (plus_hit || minus_hit)begin 
 					write_slide <= ((~N_save_sig_1 & ~N_load_sig_1) & transmit_en_dly);
 					if (N_save_sig_1 || N_load_sig_1) begin
@@ -199,11 +272,11 @@ reg cont_max_dly1,cont_max_dly2;
 				end
 			end
 			else begin
-				if (cont_cnt == 1)begin
+				if (end_cnt == 1)begin
 					if ((!N_save_sig_1 && !N_save_sig) && (!N_load_sig_1 && !N_load_sig)
 					&& (in_textarea && no_drag))begin
-						chr_3 <= cur_h_x;
-						lne <= cur_h_y;
+						chr_3 <= cur_chr_3;
+						lne <= cur_lne;
 					end
 					else if(N_save_sig_1 && !N_save_sig)begin
 						chr_3 <= 4'd11;
@@ -214,30 +287,30 @@ reg cont_max_dly1,cont_max_dly2;
 						lne <= 4'd09;
 					end
 					else if (N_save_sig || N_load_sig)begin
-						chr_3 <= cur_h_x;
-						lne <= cur_h_y;
+						chr_3 <= cur_chr_3;
+						lne <= cur_lne;
 					end		
 				end
-				if (cont_cnt == 2)begin
+				if (end_cnt == 2)begin
 					if(N_save_sig_1 || N_load_sig_1)
 						slide_val <= N_sound_nr;
 					else 
 						slide_val <= edit_chr;
 				end
-				if (cont_cnt == 3)begin
+				if (end_cnt == 3)begin
 					if (slide_bar_hit && (slide_scale < 128)) slide_val <= slide_scale;
 					else if (minus_hit && (slide_val != 0))
 						slide_val <= slide_val - 1;
 					else if (plus_hit && slide_val < 127)
 						slide_val <= slide_val + 1;		
 				end
-				if(cont_cnt == 4)begin
+				if(end_cnt == 4)begin
 					if (slide_bar_hit)begin
 						if(N_save_sig_1 || N_load_sig_1)
 							write_slide <= 1'b1;							
 					end
 				end
-				if(cont_cnt == 5)begin
+				if(end_cnt == 5)begin
 					write_slide <= 1'b0;
 				end
 			end
@@ -246,13 +319,9 @@ reg cont_max_dly1,cont_max_dly2;
 
 
 	
-	wire cont_cnt_max = (cont_cnt == 7) ? 1'b1 : 1'b0;
-
-	wire [3:0] cur_x, cur_h_x, cur_y, cur_h_y;
-							
-	always@(posedge write_pressed or posedge N_adr_9 or posedge cancel or posedge confirm)begin
+	always@(posedge save_pressed or posedge N_adr_9 or posedge cancel or posedge confirm)begin
 		if(cancel || N_adr_9) begin N_save_sig <= 1'b0; N_save_sig_1 <= 1'b0;end
-		else if(write_pressed) N_save_sig_1 <= 1'b1;
+		else if(save_pressed) N_save_sig_1 <= 1'b1;
 		else if(confirm) N_save_sig <= N_save_sig_1;
 	end
 
@@ -261,5 +330,5 @@ reg cont_max_dly1,cont_max_dly2;
 		else if(load_pressed) N_load_sig_1 <= 1'b1;
 		else if(confirm) N_load_sig <= N_load_sig_1;
 	end
-
+*/
 endmodule
