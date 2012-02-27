@@ -85,18 +85,21 @@ wire confirm = ((hit_y >=107 && hit_y <=113) && // write line
 wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 
 	reg [7:0] edit_chr;
-	reg [2:0] penirq_cnt;
+	reg [3:0] penirq_cnt, end_cnt;
 	reg penirq_cnt_en, penirq_n_r, transmit_en_r;
 	
-	wire sample_hit = (penirq_cnt >= 3'd3);
+	wire sample_hit = (penirq_cnt == 3'd3);
 	
-	reg sample_hit_r, transmit_en_dly, end_cnt_max_r,start_p_cnt_r;
+	reg sample_hit_r, transmit_en_dly, end_cnt_max_r, penirq_cnt_max_r, start_p_cnt_r;
 	reg in_textarea_r, cancel_r, load_pressed_r, save_pressed_r, confirm_r, plus_hit_r, minus_hit_r, drag_r,slide_bar_hit_r;
 	reg [3:0] cur_chr_3_r, cur_lne_r;
 
 	reg load, diskop;
 	
+
+	
 	wire end_cnt_max = (end_cnt >= 8) ? 1'b1 : 1'b0;
+	wire penirq_cnt_max = (end_cnt >= 6) ? 1'b1 : 1'b0;
 
 	wire [3:0] cur_x, cur_chr_3, cur_y, cur_lne;
 	
@@ -108,6 +111,7 @@ wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 		transmit_en_r <= transmit_en;
 		transmit_en_dly <= transmit_en_r;
 		end_cnt_max_r <= end_cnt_max;
+		penirq_cnt_max_r <= penirq_cnt_max;
 		cur_chr_3_r <= cur_chr_3;
 		cur_lne_r <= cur_lne;
 		start_p_cnt_r <= start_p_cnt;
@@ -148,70 +152,46 @@ wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 		end
 	end	
 
-	always @(negedge iRST_n or negedge penirq_n_r)begin
+	always @(negedge iRST_n or negedge penirq_n_r or negedge transmit_en_r)begin
 		if (!iRST_n)begin
-			penirq_cnt <= 3'd0;
+			penirq_cnt <= 4'd0;
 		end else begin 
-			if (!penirq_n_r) begin 
-				if(penirq_cnt_en)begin
-					penirq_cnt <= penirq_cnt + 1;
-				end
-				else begin
-					penirq_cnt <= 3'd0;
-				end
-			end
+			if (transmit_en_r == 0) begin penirq_cnt <= 4'd0;end 
+			else if(penirq_cnt_max_r == 0)penirq_cnt <= penirq_cnt + 1;
 		end
 	end	
-	
-	always @(posedge sys_clk)begin
-		case(cur_lne_r)
-			1: begin if(cur_chr_3_r <=7)disp_val <= cur_chr_3_r;
-					else if (cur_chr_3_r <=9)disp_val <= cur_chr_3_r +8'd84;
-				end
-			2: if(cur_chr_3_r <=7)disp_val <= cur_chr_3_r+8'd8;
-			3: if(cur_chr_3_r<=7)disp_val <= cur_chr_3_r+8'd16;
-			4: if(cur_chr_3_r<=7)disp_val <= cur_chr_3_r+8'd24;
-			7: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd32;
-			8: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd48;
-			9: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd64;
-			10: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd80;
-			default: disp_val <= 8'hff; 
-		endcase
-		if (disp_val != 8'hff) edit_chr <= disp_data[disp_val];
-	end
 
-
-//reg [7:0]t_cnt;
-reg [3:0]end_cnt;
-
-reg cont_max_dly1,cont_max_dly2;
-/*
-	always @(negedge iRST_n or negedge penirq_n or negedge transmit_en)begin
-		if (!iRST_n)begin
-			t_cnt <= 0;
-		end else begin
-			if(!transmit_en)begin t_cnt <= 0;end 
-			else if(t_cnt <=7) t_cnt <= t_cnt +1;
-		end
-	end
-*/
-//		if (end_cnt == 2)begin
-//				if(in_textarea && disp_val != 8'hff )
-//			end
-//		end
 	always @(negedge iRST_n or posedge sys_clk or posedge transmit_en_r)begin
 		if (!iRST_n)begin
-			end_cnt <= 0;
+			end_cnt <= 3'd0;
 		end else begin
-			if(transmit_en_r)begin end_cnt <= 0;end 
+			if(transmit_en_r)begin end_cnt <= 3'd0;end 
 			else if (end_cnt_max_r == 0) end_cnt <= end_cnt +1;
 		end
 	end
 
-//		if (end_cnt == 2)begin
-//				if(in_textarea && disp_val != 8'hff )
-//			end
-//		end
+
+	
+	always @(posedge sys_clk)begin
+		if(penirq_cnt == 4 && in_textarea_r)begin
+			case(cur_lne_r)
+				1: begin if(cur_chr_3_r <=7)disp_val <= cur_chr_3_r;
+						else if (cur_chr_3_r <=9)disp_val <= cur_chr_3_r +8'd84;
+					end
+				2: if(cur_chr_3_r <=7)disp_val <= cur_chr_3_r+8'd8;
+				3: if(cur_chr_3_r<=7)disp_val <= cur_chr_3_r+8'd16;
+				4: if(cur_chr_3_r<=7)disp_val <= cur_chr_3_r+8'd24;
+				7: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd32;
+				8: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd48;
+				9: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd64;
+				10: if(cur_chr_3_r<=8'd11)disp_val <= cur_chr_3_r+8'd80;
+				default: disp_val <= 8'hff; 
+			endcase
+		end
+		else if (disp_val != 8'hff && penirq_cnt == 4'd5) edit_chr <= disp_data[disp_val];
+	end
+
+
 	always @(negedge iRST_n or posedge sys_clk)begin
 		if (!iRST_n)begin
 			chr_3 <= 4'd0;
@@ -251,8 +231,8 @@ reg cont_max_dly1,cont_max_dly2;
 					else if (plus_hit_r && slide_val < 127)
 						slide_val <= slide_val + 1;		
 				end
-				if(end_cnt == 2) if(slide_bar_hit_r || plus_hit_r || minus_hit_r) write_slide <= 1'b1;
-				if(end_cnt == 3) if(slide_bar_hit_r || plus_hit_r || minus_hit_r) write_slide <= 1'b0;
+				else if(end_cnt == 2) begin if(slide_bar_hit_r || plus_hit_r || minus_hit_r) write_slide <= 1'b1;end
+				else if(end_cnt == 4) begin if(slide_bar_hit_r || plus_hit_r || minus_hit_r) write_slide <= 1'b0;end
 			end
 		end
 	end

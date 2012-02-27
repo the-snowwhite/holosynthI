@@ -184,7 +184,7 @@ module display(
 			end else if(chr <= 4*11)begin
 				char_data <= char_buffer(chr,2);			
 			end else begin
-				itostr <= status_data[9];
+				itostr <= status_data[11];
 				char_data <= var_str;		
 			end
 		end			
