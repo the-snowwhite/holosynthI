@@ -19,3 +19,4 @@ eclipse_workspace/*
 *.qdf
 syn/*/*/*/*.txt
 **/software/*/*
+*.stp

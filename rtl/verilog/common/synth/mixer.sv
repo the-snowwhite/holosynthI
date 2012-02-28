@@ -14,7 +14,8 @@ module mixer (
 	input  signed [7:0]osc_mod_in[V_OSC],		// osc_mod    osc_buf[10]
 	input  signed [7:0]osc_feedb_in[V_OSC],		// osc_feedb  osc_buf[11]
 	input  signed [7:0]m_vol,				// m_vol		com_buf[1]
-	input  signed [7:0]mat_buf[32][V_OSC],
+	input  signed [7:0]mat_buf1[16][V_OSC],
+	input  signed [7:0]mat_buf2[16][V_OSC],
 	// pitch
 	input signed [16:0]sine_lut_out[V_OSC],
 // Oututs -- //
@@ -83,28 +84,11 @@ parameter E_WIDTH = utils::clogb2(V_ENVS);
 
 // Matrix
 	generate genvar am5,oo1;
-/*	begin : sum_all_osc_mod_feedb_outs	
-		for(am5=0;am5<V_OSC;am5++)begin : matrix_mod
-			assign m_in_all[am5] =	m_sum(osc_mod_data_r);
-			assign fb_in_all[am5] =	fb_sum(osc_feedb_data_r);
-		end
-	end
-	*/	
-
 
 	begin : sum_osc_modulation_ins	
-		for(am5=0;am5<V_OSC;am5++)begin : matrix_mod
-	
-//			assign m_in_all_x_mat[am5] = x_mat_m(m_in_all,mat_buf[am5]);
-//			assign osc_mod_data_sum[am5] = x_m_sum(m_in_all_x_mat);
-			assign m_in_all_x_mat[am5] = x_mat_m(osc_mod_data_r,mat_buf[am5]);
-//			assign osc_mod_data_sum[am5] = x_m_sum(m_in_all_x_mat);
-
-//			assign fb_in_all_x_mat[am5] = x_mat_fb(fb_in_all,mat_buf[am5+8]);
-//			assign osc_feedback_data_sum[am5] = x_fb_sum(fb_in_all_x_mat);
-			assign fb_in_all_x_mat[am5] = x_mat_fb(osc_feedb_data_r,mat_buf[am5+8]);
-//			assign osc_feedback_data_sum[am5] = x_fb_sum(fb_in_all_x_mat);
-
+		for(am5=0;am5<V_OSC;am5++)begin : matrix_mod	
+			assign m_in_all_x_mat[am5] = x_mat_m(osc_mod_data_r,mat_buf1[am5]);
+			assign fb_in_all_x_mat[am5] = x_mat_fb(osc_feedb_data_r,mat_buf1[am5+8]);
 		end
 	end
 	
