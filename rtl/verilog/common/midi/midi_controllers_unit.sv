@@ -24,10 +24,6 @@ module midi_controllers_unit (
 	input write_slide,
 	
 //@name		Controller Values		//
-//	output reg signed [7:0] env_buf[16][V_OSC],
-//	output reg signed [7:0] osc_buf[16][V_OSC],
-//	output reg signed [7:0] mat_buf[32][V_OSC],
-//	output reg signed [7:0] com_buf[32],
 	output signed [7:0] env_buf[16][V_OSC],
 	output signed [7:0] osc_buf[16][V_OSC],
 	output signed [7:0] mat_buf1[16][V_OSC],
@@ -128,168 +124,7 @@ parameter o_offset2 = 59;
 /// Test
 parameter mod_shift_nr = 16;
 */
-/*
-/////////////////////////////////////
-// 0 -- b000
-assign disp_data[0] = (!SW[16]) ? (env_buf[7'h00]):(synth_data[16]);// r[0][0]
-assign disp_data[1] = (!SW[16]) ? (env_buf[7'h04]):(synth_data[0]);// l[0][0]					
-assign disp_data[2] = (!SW[16]) ? (env_buf[7'h01]):(synth_data[17]);//r[0][1]		
-assign disp_data[3] = (!SW[16]) ? (env_buf[7'h05]):(synth_data[1]);//l[0][1]					
-assign disp_data[4] = (!SW[16]) ? (env_buf[7'h02]):(synth_data[18]);//r[0][2]					
-assign disp_data[5] = (!SW[16]) ? (env_buf[7'h06]):(synth_data[2]);//l[0][2]					
-assign disp_data[6] = (!SW[16]) ? (env_buf[7'h03]):(synth_data[19]);					
-assign disp_data[7] = (!SW[16]) ? (env_buf[7'h07]):(synth_data[3]);					
-// 1 -- b001
-assign disp_data[8] = (!SW[16]) ? (env_buf[7'h10]):(synth_data[20]);
-assign disp_data[9] = (!SW[16]) ? (env_buf[7'h14]):(synth_data[4]);					
-assign disp_data[10] = (!SW[16]) ? (env_buf[7'h11]):(synth_data[21]);					
-assign disp_data[11] = (!SW[16]) ? (env_buf[7'h15]):(synth_data[5]);					
-assign disp_data[12] = (!SW[16]) ? (env_buf[7'h12]):(synth_data[22]);					
-assign disp_data[13] = (!SW[16]) ? (env_buf[7'h16]):(synth_data[6]);					
-assign disp_data[14] = (!SW[16]) ? (env_buf[7'h13]):(synth_data[23]);					
-assign disp_data[15] = (!SW[16]) ? (env_buf[7'h17]):(synth_data[7]);					
-// 2 -- b010
-assign disp_data[16] = (!SW[16]) ? (env_buf[7'h08]):(synth_data[24]);					
-assign disp_data[17] = (!SW[16]) ? (env_buf[7'h0C]):(synth_data[8]);					
-assign disp_data[18] = (!SW[16]) ? (env_buf[7'h09]):(synth_data[25]);					
-assign disp_data[19] = (!SW[16]) ? (env_buf[7'h0D]):(synth_data[9]);					
-assign disp_data[20] = (!SW[16]) ? (env_buf[7'h0A]):(synth_data[26]);					
-assign disp_data[21] = (!SW[16]) ? (env_buf[7'h0E]):(synth_data[10]);					
-assign disp_data[22] = (!SW[16]) ? (env_buf[7'h0B]):(synth_data[27]);					
-assign disp_data[23] = (!SW[16]) ? (env_buf[7'h0F]):(synth_data[11]);					
-// 3 -- b011
-assign disp_data[24] = (!SW[16]) ? (env_buf[7'h18]):(synth_data[28]);					
-assign disp_data[25] = (!SW[16]) ? (env_buf[7'h1C]):(synth_data[12]);					
-assign disp_data[26] = (!SW[16]) ? (env_buf[7'h19]):(synth_data[29]);					
-assign disp_data[27] = (!SW[16]) ? (env_buf[7'h1D]):(synth_data[13]);					
-assign disp_data[28] = (!SW[16]) ? (env_buf[7'h1A]):(synth_data[30]);					
-assign disp_data[29] = (!SW[16]) ? (env_buf[7'h1E]):(synth_data[14]);					
-assign disp_data[30] = (!SW[16]) ? (env_buf[7'hB]):(synth_data[31]);					
-assign disp_data[31] = (!SW[16]) ? (env_buf[7'h1F]):(synth_data[15]);					
-// 3 -- b100
-assign disp_data[32] = (!SW[16]) ? (osc_buf[7'h00]):(synth_data[33]);					
-assign disp_data[33] = (!SW[16]) ? (osc_buf[7'h01]):(synth_data[35]);					
-assign disp_data[34] = (!SW[16]) ? (osc_buf[7'h02]):(synth_data[36]);					
-assign disp_data[35] = (!SW[16]) ? (osc_buf[7'h03]):(synth_data[38]);					
-assign disp_data[36] = (!SW[16]) ? (osc_buf[7'h04]):(synth_data[44]);
-assign disp_data[37] = (!SW[16]) ? (osc_buf[7'h05]):(synth_data[47]);
-assign disp_data[38] = (!SW[16]) ? (osc_buf[7'h06]):(synth_data[49]);
-assign disp_data[39] = (!SW[16]) ? (osc_buf[7'h07]):(synth_data[41]);					
-// 4 -- b101					
-assign disp_data[40] = (!SW[16]) ? (osc_buf[7'h08]):(synth_data[43]);					
-assign disp_data[41] = (!SW[16]) ? (com_buf[4'h0]):(synth_data[50]);					
-assign disp_data[42] = (!SW[16]) ? (com_buf[4'h1]):(synth_data[51]);					
-// 5 -- b110
-assign disp_data[48] = (!SW[16]) ? (osc_buf[7'h10]):(synth_data[32]);					
-assign disp_data[49] = (!SW[16]) ? (osc_buf[7'h11]):(synth_data[34]);					
-assign disp_data[50] = (!SW[16]) ? (osc_buf[7'h12]):(synth_data[37]);					
-assign disp_data[51] = (!SW[16]) ? (osc_buf[7'h13]):(synth_data[39]);					
-assign disp_data[52] = (!SW[16]) ? (osc_buf[7'h14]):(synth_data[45]);
-assign disp_data[53] = (!SW[16]) ? (osc_buf[7'h15]):(synth_data[46]);
-assign disp_data[54] = (!SW[16]) ? (osc_buf[7'h16]):(synth_data[48]);
-assign disp_data[55] = (!SW[16]) ? (osc_buf[7'h17]):(synth_data[40]);					
-// 6 -- b111					
-assign disp_data[56] = (!SW[16]) ? (osc_buf[7'h18]):(synth_data[42]);					
-// ----------            --------------------        //
-*/
-/////////////////////////////////////
-// 0 -- b0000
-/*
-assign disp_data[0] = (!SW[16]) ? (env_buf[4'h0][0]):(8'h00);// r[0][0]
-assign disp_data[1] = (!SW[16]) ? (env_buf[4'h4][0]):(8'h00);// l[0][0]					
-assign disp_data[2] = (!SW[16]) ? (env_buf[4'h1][0]):(8'h00);//r[0][1]		
-assign disp_data[3] = (!SW[16]) ? (env_buf[4'h5][0]):(8'h00);//l[0][1]					
-assign disp_data[4] = (!SW[16]) ? (env_buf[4'h2][0]):(8'h00);//r[0][2]					
-assign disp_data[5] = (!SW[16]) ? (env_buf[4'h6][0]):(8'h00);//l[0][2]					
-assign disp_data[6] = (!SW[16]) ? (env_buf[4'h3][0]):(8'h00);					
-assign disp_data[7] = (!SW[16]) ? (env_buf[4'h7][0]):(8'h00);					
-// 1 -- b0001
-assign disp_data[8] = (!SW[16]) ? (env_buf[4'h0][1]):(8'h00);
-assign disp_data[9] = (!SW[16]) ? (env_buf[4'h4][1]):(8'h00);					
-assign disp_data[10] = (!SW[16]) ? (env_buf[4'h1][1]):(8'h00);					
-assign disp_data[11] = (!SW[16]) ? (env_buf[4'h5][1]):(8'h00);					
-assign disp_data[12] = (!SW[16]) ? (env_buf[4'h2][1]):(8'h00);					
-assign disp_data[13] = (!SW[16]) ? (env_buf[4'h6][1]):(8'h00);					
-assign disp_data[14] = (!SW[16]) ? (env_buf[4'h3][1]):(8'h00);					
-assign disp_data[15] = (!SW[16]) ? (env_buf[4'h7][1]):(8'h00);					
-// 2 -- b0010
-assign disp_data[16] = (!SW[16]) ? (env_buf[4'h0][2]):(8'h00);					
-assign disp_data[17] = (!SW[16]) ? (env_buf[4'h4][2]):(8'h00);					
-assign disp_data[18] = (!SW[16]) ? (env_buf[4'h1][2]):(8'h00);					
-assign disp_data[19] = (!SW[16]) ? (env_buf[4'h5][2]):(8'h00);					
-assign disp_data[20] = (!SW[16]) ? (env_buf[4'h2][2]):(8'h00);					
-assign disp_data[21] = (!SW[16]) ? (env_buf[4'h6][2]):(8'h00);					
-assign disp_data[22] = (!SW[16]) ? (env_buf[4'h3][2]):(8'h00);					
-assign disp_data[23] = (!SW[16]) ? (env_buf[4'h7][2]):(8'h00);					
-// 3 -- b0011
-assign disp_data[24] = (!SW[16]) ? (env_buf[4'h0][3]):(8'h00);					
-assign disp_data[25] = (!SW[16]) ? (env_buf[4'h4][3]):(8'h00);					
-assign disp_data[26] = (!SW[16]) ? (env_buf[4'h1][3]):(8'h00);					
-assign disp_data[27] = (!SW[16]) ? (env_buf[4'h5][3]):(8'h00);					
-assign disp_data[28] = (!SW[16]) ? (env_buf[4'h2][3]):(8'h00);					
-assign disp_data[29] = (!SW[16]) ? (env_buf[4'h6][3]):(8'h00);					
-assign disp_data[30] = (!SW[16]) ? (env_buf[7'h3][3]):(8'h00);					
-assign disp_data[31] = (!SW[16]) ? (env_buf[4'h7][3]):(8'h00);					
-// 4 -- b0100
-assign disp_data[32] = (!SW[16]) ? (osc_buf[4'h0][0]):(8'h00);					
-assign disp_data[33] = (!SW[16]) ? (osc_buf[4'h1][0]):(8'h00);					
-assign disp_data[34] = (!SW[16]) ? (osc_buf[4'h2][0]):(8'h00);					
-assign disp_data[35] = (!SW[16]) ? (osc_buf[4'h3][0]):(8'h00);					
-assign disp_data[36] = (!SW[16]) ? (osc_buf[4'h4][0]):(8'h00);
-assign disp_data[37] = (!SW[16]) ? (osc_buf[4'h5][0]):(8'h00);
-assign disp_data[38] = (!SW[16]) ? (osc_buf[4'h6][0]):(8'h00);
-assign disp_data[39] = (!SW[16]) ? (osc_buf[4'h7][0]):(8'h00);					
-// 5 -- b0101					
-assign disp_data[40] = (!SW[16]) ? (osc_buf[4'h8][0]):(8'h00);					
-assign disp_data[41] = (!SW[16]) ? (osc_buf[4'h9][0]):(8'h00);					
-assign disp_data[42] = (!SW[16]) ? (osc_buf[4'ha][0]):(8'h00);					
-assign disp_data[43] = (!SW[16]) ? (osc_buf[4'hb][0]):(8'h00);					
-// 6 -- b0110
-assign disp_data[48] = (!SW[16]) ? (osc_buf[4'h0][1]):(8'h00);					
-assign disp_data[49] = (!SW[16]) ? (osc_buf[4'h1][1]):(8'h00);					
-assign disp_data[50] = (!SW[16]) ? (osc_buf[4'h2][1]):(8'h00);					
-assign disp_data[51] = (!SW[16]) ? (osc_buf[4'h3][1]):(8'h00);					
-assign disp_data[52] = (!SW[16]) ? (osc_buf[4'h4][1]):(8'h00);
-assign disp_data[53] = (!SW[16]) ? (osc_buf[4'h5][1]):(8'h00);
-assign disp_data[54] = (!SW[16]) ? (osc_buf[4'h6][1]):(8'h00);
-assign disp_data[55] = (!SW[16]) ? (osc_buf[4'h7][1]):(8'h00);					
-// 7 -- b0111					
-assign disp_data[56] = (!SW[16]) ? (osc_buf[4'h8][1]):(8'h00);					
-assign disp_data[57] = (!SW[16]) ? (osc_buf[4'h9][1]):(8'h00);					
-assign disp_data[58] = (!SW[16]) ? (osc_buf[4'ha][1]):(8'h00);					
-assign disp_data[59] = (!SW[16]) ? (osc_buf[4'hb][1]):(8'h00);					
-// 8 -- b1000
-assign disp_data[64] = (!SW[16]) ? (osc_buf[4'h0][2]):(8'h00);					
-assign disp_data[65] = (!SW[16]) ? (osc_buf[4'h1][2]):(8'h00);					
-assign disp_data[66] = (!SW[16]) ? (osc_buf[4'h2][2]):(8'h00);					
-assign disp_data[67] = (!SW[16]) ? (osc_buf[4'h3][2]):(8'h00);					
-assign disp_data[68] = (!SW[16]) ? (osc_buf[4'h4][2]):(8'h00);
-assign disp_data[69] = (!SW[16]) ? (osc_buf[4'h5][2]):(8'h00);
-assign disp_data[70] = (!SW[16]) ? (osc_buf[4'h6][2]):(8'h00);
-assign disp_data[71] = (!SW[16]) ? (osc_buf[4'h7][2]):(8'h00);					
-// 9 -- b1001					
-assign disp_data[72] = (!SW[16]) ? (osc_buf[4'h8][2]):(8'h00);					
-assign disp_data[73] = (!SW[16]) ? (osc_buf[4'h9][2]):(8'h00);					
-assign disp_data[74] = (!SW[16]) ? (osc_buf[4'ha][2]):(8'h00);					
-assign disp_data[75] = (!SW[16]) ? (osc_buf[4'hb][2]):(8'h00);					
-// 10 -- b1010
-assign disp_data[80] = (!SW[16]) ? (osc_buf[4'h0][3]):(8'h00);					
-assign disp_data[81] = (!SW[16]) ? (osc_buf[4'h1][3]):(8'h00);					
-assign disp_data[82] = (!SW[16]) ? (osc_buf[4'h2][3]):(8'h00);					
-assign disp_data[83] = (!SW[16]) ? (osc_buf[4'h3][3]):(8'h00);					
-assign disp_data[84] = (!SW[16]) ? (osc_buf[4'h4][3]):(8'h00);
-assign disp_data[85] = (!SW[16]) ? (osc_buf[4'h5][3]):(8'h00);
-assign disp_data[86] = (!SW[16]) ? (osc_buf[4'h6][3]):(8'h00);
-assign disp_data[87] = (!SW[16]) ? (osc_buf[4'h7][3]):(8'h00);					
-// 11 -- b1011					
-assign disp_data[88] = (!SW[16]) ? (osc_buf[4'h8][3]):(8'h00);					
-assign disp_data[89] = (!SW[16]) ? (osc_buf[4'h9][3]):(8'h00);					
-assign disp_data[90] = (!SW[16]) ? (osc_buf[4'ha][3]):(8'h00);					
-assign disp_data[91] = (!SW[16]) ? (osc_buf[4'hb][3]):(8'h00);					
-assign disp_data[92] = (!SW[16]) ? (com_buf[4'h0]):(8'h00);					
-assign disp_data[93] = (!SW[16]) ? (com_buf[4'h1]):(8'h00);					
-// ----------            --------------------        //
-*/
+
 assign disp_data[0] =  env_buf[4'h0][0] ;// r[0][0]
 assign disp_data[1] =  env_buf[4'h4][0] ;// l[0][0]					
 assign disp_data[2] =  env_buf[4'h1][0] ;//r[0][1]		
@@ -680,9 +515,9 @@ assign midi_data[127] = com_buf[4'h1f];
 				col_inx <= disp_val_r[3]; 
 			end
 			else if (disp_val_r <= 93)begin
-				data <= slide_val_r; row_adr_1 <= disp_val_r[5:4];
-				bnk_inx <= 3'd4; col_adr_low <= disp_val_r[2:0];
-				col_inx <= disp_val_r[3]; 
+				data <= slide_val_r; row_adr_1 <= 2'b00;
+				bnk_inx <= 3'd4; col_adr_low <= disp_val_r-92;
+				col_inx <= 1'b0; 
 			end
 		end
 	end
