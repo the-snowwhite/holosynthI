@@ -135,8 +135,9 @@ wire 	off_note_error;
 wire [13:0]pitch_val;
 wire signed [7:0] env_buf[16][V_OSC];	
 wire signed [7:0] osc_buf[16][V_OSC];	
-wire signed [7:0] mat_buf[32][V_OSC];	
-wire signed [7:0] com_buf[32];	
+wire signed [7:0] mat_buf1[16][V_OSC];	
+wire signed [7:0] mat_buf2[16][V_OSC];	
+wire signed [7:0] com_buf[16][2];	
 
 wire [7:0] o_index;
 	
@@ -266,7 +267,8 @@ midi_controllers_unit #(.VOICES(VOICES),.V_OSC(V_OSC)) midi_controllers(
 //	.synth_data( synth_data ),
 	.env_buf		( env_buf ),
 	.osc_buf		( osc_buf ),
-	.mat_buf		( mat_buf ),
+	.mat_buf1	( mat_buf1 ),
+	.mat_buf2	( mat_buf2 ),
 	.com_buf		( com_buf ),
 	.pitch_val		( pitch_val )
 );
@@ -302,7 +304,8 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS)) synth_engine_inst	
 //	.synth_data ( synth_data ),
 	.env_buf( env_buf ),
 	.osc_buf( osc_buf ),
-	.mat_buf( mat_buf ),
+	.mat_buf1( mat_buf1 ),
+	.mat_buf2( mat_buf2 ),
 	.com_buf( com_buf ),
 	.pitch_val ( pitch_val )
 );
@@ -348,7 +351,7 @@ assign RLED[8:1] = {voice_free[7],voice_free[6],voice_free[5],voice_free[4],
 
 
 // LCD Display + Touch + +++++++++++++++++++--- Color ----------------------------------//
-	wire [7:0]disp_data[64];
+	wire [7:0]disp_data[94];
 		
 display display_inst_1(		
 	// VGA output //		
