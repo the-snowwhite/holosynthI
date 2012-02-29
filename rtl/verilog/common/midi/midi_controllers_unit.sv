@@ -14,10 +14,10 @@ module midi_controllers_unit (
 	output [7:0]disp_data[94],
 	output [7:0] o_index,
 //@name	cpu signals //
-	input 			N_adr_data_rdy,					// midi data ready from Nios
+	input [1:0]	N_adr_data_rdy,	// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk
 	input [8:0] N_adr,				// data addr.
-	output [7:0] N_synth_out_data,		// data byte
-	input [7:0] N_synth_in_data,		// data byte
+	output [7:0] N_synth_out_data,		// data byte from synth to nios
+	input [7:0] N_synth_in_data,		// data byte from nios to synth
 //@name	touch signals	 //
 	input [7:0] slide_val,
 	input [7:0] disp_val,
@@ -445,7 +445,7 @@ assign midi_data[127] = com_buf[4'h1f];
 	reg [2:0]bnk_inx, col_adr_low;
 	reg [O_WIDTH-1:0]row_adr_1;
 	
-	reg N_adr_data_rdy_r, N_load_sig_r, N_save_sig_r, write_slide_r; 
+	reg N_adr_data_rdy_r,N_adr_data_rdy_w, N_save_sig_r, N_load_sig_r, write_slide_r; 
 	reg [7:0] N_synth_in_data_r, s_adr_1, s_adr_0, s_dat_val, slide_val_r, data;
 	reg [7:0] c_adr_1_r, c_adr_0_r;
 	reg [8:0] N_adr_r;
@@ -457,7 +457,8 @@ assign midi_data[127] = com_buf[4'h1f];
 		sysex_cmd_r <= sysex_cmd;
 		data_ready <= (ictrl_cmd & !ctrl_cmd_r) | (sysex_cmd & !sysex_cmd_r) | (write_slide & !write_slide_r);
 		pitch_cmd_r <= pitch_cmd;
-		N_adr_data_rdy_r <= N_adr_data_rdy;
+		N_adr_data_rdy_r <= N_adr_data_rdy[0];
+		N_adr_data_rdy_w <= N_adr_data_rdy[1];
 		N_synth_in_data_r <= N_synth_in_data;
 		N_adr_r <= N_adr;
 		N_load_sig_r <= N_load_sig;
@@ -682,15 +683,18 @@ assign midi_data[127] = com_buf[4'h1f];
 
 	always @(posedge N_adr_data_rdy_r)begin
 //	if(N_adr_data_rdy_r)begin
-		if(N_save_sig_r)begin
-			case(N_adr_r[8:7])
-				2'b00:	N_synth_out_data <= env_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
-				2'b01:	N_synth_out_data <= osc_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
-				2'b10:	N_synth_out_data <= com_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
+		if(N_adr_data_rdy_w == 1'b0)begin
+			N_synth_out_data <= synth_data[N_adr_r[3:0]][N_adr_r[8:4]];
+/*			case(N_adr_r[8:6])
+				3'd0:	N_synth_out_data <= env_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
+				3'd1:	N_synth_out_data <= osc_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
+				3'd2:	N_synth_out_data <= mat_buf1[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
+				3'd3:	N_synth_out_data <= mat_buf2[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
+				3'd4:	N_synth_out_data <= com_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
 				default:;
 			endcase
-		end
-		else N_synth_out_data <= 8'h00;	
+*/		end
+//		else N_synth_out_data <= 8'h00;	
 //		end	
 	end
 	

@@ -46,7 +46,7 @@ module synthesizer (
 	inout		AUD_BCLK,				//	Audio CODEC Bit-Stream Clock
 	output		AUD_XCK,					//	Audio CODEC Chip Clock
 
-	input 		N_adr_data_rdy,				// midi data num ready from Nios
+	input [1:0]		N_adr_data_rdy,				// midi data num ready from Nios
 	input	[9:0]	N_adr,				// controller nr.
 	output	[7:0]	N_synth_out_data,				// data byte
 	input	[7:0]	N_synth_in_data,				// data byte
@@ -256,8 +256,8 @@ midi_controllers_unit #(.VOICES(VOICES),.V_OSC(V_OSC)) midi_controllers(
 //	cpu signals //
 	.N_adr_data_rdy		( N_adr_data_rdy ),					// midi data ready from Nios
 	.N_adr			( N_adr[8:0] ),				// controller nr.
-	.N_synth_out_data	( N_synth_out_data ),		// data byte
-	.N_synth_in_data	( N_synth_in_data ),		// data byte
+	.N_synth_out_data	( N_synth_out_data ),		// data byte from synth to nios
+	.N_synth_in_data	( N_synth_in_data ),		// data byte from nios to synth
 	.N_save_sig		( N_save_sig ),
 	.N_load_sig		( N_load_sig ),
 //	touch signals	 //
