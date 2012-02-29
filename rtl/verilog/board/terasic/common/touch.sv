@@ -13,6 +13,8 @@ module touch(
 	// Output Port(s)
 	output reg [3:0]chr_3,
 	output reg [3:0]lne,
+	output reg [3:0]col,
+	output reg [3:0]row,
 	output reg [7:0]disp_val,
 	output [7:0]touch_status_data[10],
 	output reg[7:0] slide_val,
@@ -204,8 +206,10 @@ wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 					if(confirm_r)begin
 						if(load) N_load_sig <= 1'b1;
 						else N_save_sig <= 1'b1;
+					 col <= 11; row <= 12;
 					end
-					else if(cancel_r)begin diskop <= 1'b0;chr_3 <= cur_chr_3_r;lne <= cur_lne_r;end
+					else if(cancel_r)begin diskop <= 1'b0;chr_3 <= cur_chr_3_r;lne <= cur_lne_r;
+													 col <= 11; row <= 0; end
 					else if (slide_bar_hit_r && (slide_scale < 128)) slide_val <= slide_scale;
 					else if (minus_hit_r && (slide_val != 0))
 						slide_val <= slide_val - 1;
@@ -228,8 +232,10 @@ wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 							slide_val <= edit_chr;
 						end
 						if(cancel_r)begin diskop  <= 1'b0;chr_3 <= cur_chr_3_r;lne <= cur_lne_r;end
-						if(load_pressed_r)begin diskop <= 1'b1; load <= 1'b1;chr_3 <= 11;lne <= 3;slide_val <= N_sound_nr;end
-						if(save_pressed_r)begin diskop <= 1'b1; load <= 1'b0;chr_3 <= 11;lne <= 3;slide_val <= N_sound_nr;end	
+						if(load_pressed_r)begin diskop <= 1'b1; load <= 1'b1;chr_3 <= 11;lne <= 3;
+														slide_val <= N_sound_nr; col <= 9; row <= 3;end
+						if(save_pressed_r)begin diskop <= 1'b1; load <= 1'b0;chr_3 <= 11;lne <= 3;
+														slide_val <= N_sound_nr; col <= 9; row <= 4;end	
 					end
 					else if (slide_bar_hit_r && (slide_scale < 128)) slide_val <= slide_scale;
 					else if (minus_hit_r && (slide_val != 0))

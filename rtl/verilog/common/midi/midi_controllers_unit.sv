@@ -446,21 +446,22 @@ assign midi_data[127] = com_buf[4'h1f];
 	reg [O_WIDTH-1:0]row_adr_1;
 	
 	reg N_adr_data_rdy_r,N_adr_data_rdy_w, N_save_sig_r, N_load_sig_r, write_slide_r; 
-	reg [7:0] N_synth_in_data_r, s_adr_1, s_adr_0, s_dat_val, slide_val_r, data;
+	reg [7:0] s_adr_1, s_adr_0, s_dat_val, slide_val_r, data;//N_synth_in_data_r, 
 	reg [7:0] c_adr_1_r, c_adr_0_r;
-	reg [8:0] N_adr_r;
+//	reg [8:0] N_adr_r;
 	reg [7:0] disp_val_r;
 	wire [O_WIDTH:0]a1;
 	always @(posedge CLOCK_25)begin
 		ctrl_cmd_r <= ictrl_cmd;
 		ctrl_data_r <= ictrl_data;
 		sysex_cmd_r <= sysex_cmd;
-		data_ready <= (ictrl_cmd & !ctrl_cmd_r) | (sysex_cmd & !sysex_cmd_r) | (write_slide & !write_slide_r);
+		data_ready <= (ictrl_cmd & !ctrl_cmd_r) | (sysex_cmd & !sysex_cmd_r)
+							| (write_slide & !write_slide_r | (N_adr_data_rdy[1] & !N_adr_data_rdy_w));
 		pitch_cmd_r <= pitch_cmd;
 		N_adr_data_rdy_r <= N_adr_data_rdy[0];
-		N_adr_data_rdy_w <= N_adr_data_rdy[1];
-		N_synth_in_data_r <= N_synth_in_data;
-		N_adr_r <= N_adr;
+		N_adr_data_rdy_w <= N_adr_data_rdy[1];// 1'b1 = write to synth 
+//		N_synth_in_data_r <= N_synth_in_data;
+//		N_adr_r <= N_adr;
 		N_load_sig_r <= N_load_sig;
 		N_save_sig_r <= N_save_sig;
 		write_slide_r <= write_slide;
@@ -532,9 +533,7 @@ assign midi_data[127] = com_buf[4'h1f];
 			pitch_val <= {ictrl_data[6:0],pitch_lsb};	
 	end
 
-	always @(negedge iRST_n
-//			or posedge N_adr_data_rdy_r  or posedge write_slide_r
-		or negedge data_ready) begin
+	always @(negedge iRST_n or negedge data_ready ) begin
 		if (!iRST_n) begin 		
 			for(a1=0;a1 <V_OSC;a1++)begin
 				synth_data[4'h0][a1] <= 8'h00;
@@ -638,64 +637,20 @@ assign midi_data[127] = com_buf[4'h1f];
 			synth_data[4'hE][(4*V_OSC)+1] <= 8'h00;
 			synth_data[4'hF][(4*V_OSC)+1] <= 8'h00;
 		end	else begin
-	/*		if(write_slide_r)begin
-				if(disp_val_r <= 31)begin
-					env_buf[{1'b0,disp_val_r[0],disp_val_r[2],disp_val_r[1]}][disp_val_r[4:3]] <= slide_val_r; 
-				end
-				else if(disp_val_r <= 91)begin
-					osc_buf[disp_val_r[3:0]][{disp_val_r[6],disp_val_r[4]}] <= slide_val_r;
-				end
-				else if(disp_val_r <= 93)begin
-					com_buf[disp_val[0]] <= slide_val_r;
-				end
-			end
-*/			
-
 			if (!data_ready) begin
-//				case(bnk_inx)
-//					4'h0:	env_buf[col_adr_low[3:0]+(col_inx<<3)][row_adr_1] <= data;
-//					4'h1:	osc_buf[col_adr_low[3:0]+(col_inx<<3)][row_adr_1] <= data;
-//					4'h2:	mat_buf[col_adr_low[3:0]+(col_inx<<3)][row_adr_			
-//					4'h3:	mat_buf[(col_adr_low[3:0]+16)+(col_inx<<3)][row_adr_1] <= data;
-//					4'h4:	com_buf[col_adr_low[3:0]+(col_inx<<3)] <= data;
-				if(bnk_inx >= 4) synth_data[{col_inx,col_adr_low[2:0]}][{bnk_inx,2'b00}] <= data;
-				else synth_data[{col_inx,col_adr_low[2:0]}][{bnk_inx,row_adr_1}] <= data;
-//					3'h1:	synth_data[col_adr_low[2:0]+(col_inx<<3)][row_adr_1+V_OSC] <= data;
-//					3'h2:	synth_data[col_adr_low[2:0]+(col_inx<<3)][row_adr_1+(2*V_OSC)] <= data;
-//					3'h3:	synth_data[col_adr_low[2:0]+(col_inx<<3)][row_adr_1+(3*V_OSC)] <= data;
-//					3'h4:	synth_data[col_adr_low[2:0]+(col_inx<<3)][row_adr_1+(4*V_OSC)] <= data;
-//					default:; 
-//				endcase
-			end	
-/*	
-			else if(N_adr_data_rdy_r)begin
-				if(N_load_sig_r)begin
-					case(N_adr_r[8:7])
-						2'b00:	env_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]] <= N_synth_in_data_r;	
-						2'b01:	osc_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]] <= N_synth_in_data_r;	
-						2'b10:	com_buf[N_adr_r[3:0]] <= N_synth_in_data_r;	
-						default:;
-					endcase
+				if( N_adr_data_rdy_w) synth_data[N_adr[3:0]][N_adr[8:4]] <= N_synth_in_data;
+				else begin
+					if(bnk_inx >= 4) synth_data[{col_inx,col_adr_low[2:0]}][{bnk_inx,2'b00}] <= data;
+					else synth_data[{col_inx,col_adr_low[2:0]}][{bnk_inx,row_adr_1}] <= data;
 				end
-			end
-*/		end
+			end	
+		end
 	end
 
 	always @(posedge N_adr_data_rdy_r)begin
-//	if(N_adr_data_rdy_r)begin
 		if(N_adr_data_rdy_w == 1'b0)begin
-			N_synth_out_data <= synth_data[N_adr_r[3:0]][N_adr_r[8:4]];
-/*			case(N_adr_r[8:6])
-				3'd0:	N_synth_out_data <= env_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
-				3'd1:	N_synth_out_data <= osc_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
-				3'd2:	N_synth_out_data <= mat_buf1[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
-				3'd3:	N_synth_out_data <= mat_buf2[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
-				3'd4:	N_synth_out_data <= com_buf[N_adr_r[3:0]][N_adr_r[B_WIDTH:4]];	
-				default:;
-			endcase
-*/		end
-//		else N_synth_out_data <= 8'h00;	
-//		end	
+			N_synth_out_data <= synth_data[N_adr[3:0]][N_adr[8:4]];
+		end
 	end
 	
 		
