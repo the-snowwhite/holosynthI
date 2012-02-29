@@ -56,6 +56,7 @@ typedef struct {
 } app_info;
 
 #define AS_MAX_SDCARD_APPS              40
+#define p2_size							288
 
 typedef struct {
   app_info apps[AS_MAX_SDCARD_APPS];
@@ -128,7 +129,7 @@ int AsFindAppsOnSD( app_list_struct* sd_app_list )
   }
    char buf[800] = {0};
 //   int fileNum = sd_list("/sounds/",buf);
-   int fileNum = sd_list("/Application_Selector/",buf);
+   int fileNum = sd_list("/sounds/",buf);
    if(fileNum <= 0)
    {
        printf("cann't find file in specified directory\n");
@@ -187,13 +188,13 @@ int AsFindAppsOnSD( app_list_struct* sd_app_list )
                        if(tmpName[0] != '.')
                        {
                            char *pdest = NULL;
-                           pdest = strstr(tmpName,"_SW.bin");
+                           pdest = strstr(tmpName,"p");
                            if(pdest != NULL)
                            {
                                strcpy( sd_app_list->apps[sd_app_list->num_apps].sw_filename, tmpName );
                            }
 
-                           pdest = strstr(tmpName,"_HW.bin");
+                           pdest = strstr(tmpName,"p2_");
                            if(pdest != NULL)
                            {
                                strcpy( sd_app_list->apps[sd_app_list->num_apps].hw_filename, tmpName );
@@ -283,35 +284,34 @@ int LoadDataFromSD( char *file_name )
 //    int remaining_length = 0;  //remain file size
 
 //    char name[80] = {0};
-       char tmpBuf[64] = {0};
-        int n;
+       char tmpBuf[p2_size] = {0};
+        int n,i;
         char tmpName[80] = {0};
-        char i,prg_num;
+        char prg_num;
         prg_num = IORD_ALTERA_AVALON_PIO_DATA(N_SYNTH_SOUND_NUM_BASE);
-        sprintf(tmpName,"/sounds/p%d%s",prg_num,file_name);
+        sprintf(tmpName,"/sounds/p2_%d%s",prg_num,file_name);
  					printf("will open %s\n",tmpName);
 					if((fd = sd_open(tmpName,O_RDWR)) == -1){
 						printf("cant open file %s !!\n",tmpName);
 					}
 					else 	printf("file %s opened ok \n",tmpName);
 					printf("reading file \n");
-					if((n = sd_read(fd,tmpBuf,64)) == -1){
+					if((n = sd_read(fd,tmpBuf,p2_size)) == -1){
 						printf("can't open file %s !!\n",fd);
 					}
 					else printf("file read OK ... %d \n",n);
 
-					for(i=0; i <= 51; i++ ){
+					for(i=0; i < p2_size; i++ ){
+						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, i);
 						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x00);
 						IOWR_ALTERA_AVALON_PIO_DATA(N_SYNTH_IN_DATA_BASE, tmpBuf[i]);
-						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, i);
-						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x03);
-						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x00);// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk
-						printf("data %d %s = %d \n",i,midi_buf[i],tmpBuf[i]);
+						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x03);// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk
+						printf("data %d %s = %d \n",i,midi_buf2[i],tmpBuf[i]);
 					}
 					IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x00);
-					// send ok back to touch by writing pulse on bit 8
-					IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, 0x80);
-					IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, 0x00);
+					// send ok back to touch by writing pulse on bit 9
+					IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, 0x200);
+					IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, 0x000);
 					sd_close(fd);
 					printf(" %s is loaded \n",tmpName);
 //	}
@@ -322,7 +322,7 @@ int LoadDataFromSD( char *file_name )
 int SaveDataOnSD( char *file_name )
 {
     int volumes_mounted;
-    int n = 288;
+    int n = p2_size;
     ////set spi clock divider coeff.
     sd_set_clock_to_max( 80000000 );
     usleep (1000);
@@ -333,7 +333,7 @@ int SaveDataOnSD( char *file_name )
     {
         return -1;
     }
-    char chrbuf[288] = {0};
+    char chrbuf[p2_size] = {0};
     char f_name[80];
     int sfd =0;
     int prg_num = 0;
@@ -345,7 +345,7 @@ int SaveDataOnSD( char *file_name )
 		printf("cant open save file %s !!\n",f_name);
 	}else {
 		printf("file %s opened ok \n",f_name);
-		for(i=0; i < 288; i++ ){
+		for(i=0; i < p2_size; i++ ){
 			IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, i);
 			IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x00);
 			IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x01);// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk
@@ -358,8 +358,8 @@ int SaveDataOnSD( char *file_name )
 		else {
 			printf("file %s written ok \n ",f_name);
 		}
-		// send ok back to touch by writing pulse on bit 8
-		IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, 0x100);
+		// send ok back to touch by writing pulse on bit 9
+		IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, 0x200);
 		IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, 0x000);
 		sd_close(sfd);
 	}
@@ -410,7 +410,7 @@ int main()
     		else printf("Interrupt %d serviced\n",edge_capture);
     		edge_capture = 0;
        	}
-            printf("===== Ready =====\r\nPress write or Load.\r\n");
+            printf("===== Ready =====\r\nPress load or save.\r\n");
             while (edge_capture == 0x00);
     }
   

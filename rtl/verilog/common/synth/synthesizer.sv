@@ -377,13 +377,15 @@ display display_inst_1(
 	.status_data	( status_data ),
 	.DLY2		(DLY2),
 	.chr_3		( chr_3 ),
+	.col ( col ),
+	.row( row ),
 	.lne		( lne ),
 	.slide_val	( slide_val )
 );
 wire [7:0]status_data[12];
 ///// Touch Controller files /////////////
 
-wire [3:0] chr_3,lne;
+wire [3:0] chr_3,lne,col,row;
 wire [7:0]edit_chr,slide_val;
 wire [7:0]disp_val;
 wire write_slide;
@@ -403,6 +405,8 @@ reg new_coord_r;
 		.disp_val(disp_val),
 		.chr_3 ( chr_3 ),
 		.lne( lne ),
+		.col ( col ),
+		.row( row ),
 		.slide_val(slide_val),
 		.write_slide ( write_slide ),
 		.N_save_sig ( N_save_sig ),	//save patch to sd

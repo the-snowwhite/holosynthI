@@ -21,15 +21,13 @@ module display(
 	//	output [3:0]color,
 	input [3:0]chr_3,
 	input [3:0]lne,
+	input [3:0]col,
+	input [3:0]row,
 	input [7:0] slide_val
 );				
 
 	parameter key_y_offset = 370;
 	assign  SYNC=1;	
-
-// cursor //
-	wire cur = (CounterX >= (chr_3 * 4*16) && CounterX < ((chr_3+1) *4*16)
-					&& (CounterY >= lne *16) && (CounterY <= (lne +1)*16)) ? 1:0;
 
 ///////////   Color Settings //////	
 	wire 	[3:0]color;	
@@ -45,6 +43,7 @@ module display(
 	assign color_R[4] = 9'h1f0; assign color_G[4] = 9'h1f0; assign color_B[4] = 9'h1f0;  // Cursor
 	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h0f0;  // Text		
 	assign color_R[6] = 9'h100; assign color_G[6] = 9'h130; assign color_B[6] = 9'h1f0;  // slider		
+	assign color_R[7] = 9'h1ff; assign color_G[7] = 9'h086; assign color_B[7] = 9'h006;  // marker		
 	
 	assign VGA_R = color_R[color];
 	assign VGA_G = color_G[color];
@@ -111,8 +110,8 @@ module display(
 		begin
 			string text_data0 = "                                                ";
 			string text_data1 = " R1  L1  R2  L2  R3  L3  R4  L4 PBr VOL  Cancel ";
-			string text_data2 = "                                   Load  nr     ";
-			string text_data3 = "                                   Save  nr     ";
+			string text_data2 = "                                    Load Pnr:   ";
+			string text_data3 = "                                    Save        ";
 			string text_data4 = "                                        Confirm ";
 			string text_data5 = " CT  FT LVL MOD  FB Ksc OFS pan Bct Bft Mi  FBi ";
 			string text_data6 = " Active keys                            Confirm ";
@@ -557,20 +556,28 @@ module display(
 
 
 /////////VGA data out///////
+// cursor //
+	wire cur = (CounterX >= (chr_3 * 4*16) && CounterX < ((chr_3+1) *4*16)
+					&& (CounterY >= lne *16) && (CounterY <= (lne +1)*16)) ? 1:0;
+
+	wire marker = (CounterX >= (col * 4*16) && CounterX < ((col+1) *4*16)
+					&& (CounterY >= row *16) && (CounterY <= (row +1)*16)) ? 1:0;
+
 	wire w_key 		=~blank_bar &  white_bar;
 	wire key_		= blank_bar |  white_bar;
 	assign	white = (drag_space | w_key) & inLcdDisplay;
 	assign 	black	= ~w_key & key_ & inLcdDisplay;
 	assign	text 	= intextarea & inLcdDisplay;
 	assign	slider_act 	= slider & inLcdDisplay;
-	assign color=(     // color of element white key=3,black key=2,key=1,background=0;
+	assign color=(     // color of element text = 5, curser = 4, white key=3,black key=2,key=1,background=0;
+		( marker ) ? 7 :(
 		( slider_act ) ? 6 :(
 		( Char_ACT ) ? 5 :(
 		( cur )? 4 :(
 		( white )? 3 :(
 		( black )? 2:(
 		( text )?1:0
-		)))))
+		))))))
 	);
 
 endmodule
