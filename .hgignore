@@ -18,5 +18,10 @@ eclipse_workspace/*
 *.orig
 *.qdf
 syn/*/*/*/*.txt
-**/software/*/*
+**/software/*/*.txt
 *.stp
+**/obj/**
+*.objdump
+*.map
+**/software/**/Makefile
+**/software/**/create-this-app

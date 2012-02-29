@@ -882,7 +882,7 @@ set_global_assignment -name VERILOG_FILE bar_blank.v
 set_global_assignment -name VERILOG_FILE bar_big.v
 set_global_assignment -name VERILOG_FILE Audio_pll.v
 set_global_assignment -name VERILOG_FILE adc_spi_controller.v
-set_global_assignment -name SDC_FILE Holosynth.SDC
+set_global_assignment -name SDC_FILE Holosynth.sdc
 set_global_assignment -name SYSTEMVERILOG_FILE mixer.sv
 set_global_assignment -name SYSTEMVERILOG_FILE midi_controllers_unit.sv
 set_global_assignment -name SYSTEMVERILOG_FILE midi_decoder.sv
@@ -906,4 +906,5 @@ set_global_assignment -name SIGNALTAP_FILE touch2.stp
 set_global_assignment -name SAVE_DISK_SPACE OFF
 set_global_assignment -name IGNORE_PARTITIONS ON
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

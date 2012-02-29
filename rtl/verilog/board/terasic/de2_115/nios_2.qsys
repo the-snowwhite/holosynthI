@@ -81,20 +81,20 @@
          type = "long";
       }
    }
-   element sd_controller_0.avalon_slave
-   {
-      datum baseAddress
-      {
-         value = "134217728";
-         type = "long";
-      }
-   }
    element sram.avalon_slave
    {
       datum _lockedAddress
       {
          value = "1";
          type = "boolean";
+      }
+   }
+   element sd_controller_0.avalon_slave
+   {
+      datum baseAddress
+      {
+         value = "134217728";
+         type = "long";
       }
    }
    element button
@@ -203,14 +203,6 @@
          type = "long";
       }
    }
-   element N_synth_in_data.s1
-   {
-      datum baseAddress
-      {
-         value = "134218848";
-         type = "long";
-      }
-   }
    element timer_0.s1
    {
       datum _lockedAddress
@@ -224,19 +216,19 @@
          type = "long";
       }
    }
-   element N_adr.s1
-   {
-      datum baseAddress
-      {
-         value = "134218880";
-         type = "long";
-      }
-   }
    element N_synth_out_data.s1
    {
       datum baseAddress
       {
          value = "134218832";
+         type = "long";
+      }
+   }
+   element N_synth_sound_num.s1
+   {
+      datum baseAddress
+      {
+         value = "134218896";
          type = "long";
       }
    }
@@ -256,11 +248,19 @@
          type = "long";
       }
    }
-   element N_synth_sound_num.s1
+   element N_synth_in_data.s1
    {
       datum baseAddress
       {
-         value = "134218896";
+         value = "134218848";
+         type = "long";
+      }
+   }
+   element N_adr.s1
+   {
+      datum baseAddress
+      {
+         value = "134218880";
          type = "long";
       }
    }
@@ -361,7 +361,7 @@
  <parameter name="projectName" value="" />
  <parameter name="sopcBorderPoints" value="false" />
  <parameter name="systemHash" value="1" />
- <parameter name="timeStamp" value="1328007947752" />
+ <parameter name="timeStamp" value="1330485312439" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
  <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
@@ -848,7 +848,7 @@
   <parameter name="resetValue" value="0" />
   <parameter name="simDoTestBenchWiring" value="false" />
   <parameter name="simDrivenValue" value="0" />
-  <parameter name="width" value="1" />
+  <parameter name="width" value="2" />
  </module>
  <module kind="altera_avalon_pio" version="11.1" enabled="1" name="N_adr">
   <parameter name="bitClearingEdgeCapReg" value="false" />
@@ -862,7 +862,7 @@
   <parameter name="resetValue" value="0" />
   <parameter name="simDoTestBenchWiring" value="false" />
   <parameter name="simDrivenValue" value="0" />
-  <parameter name="width" value="8" />
+  <parameter name="width" value="10" />
  </module>
  <module kind="altera_avalon_pio" version="11.1" enabled="1" name="N_irq">
   <parameter name="bitClearingEdgeCapReg" value="false" />

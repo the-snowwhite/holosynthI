@@ -206,12 +206,18 @@ wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 						else N_save_sig <= 1'b1;
 					end
 					else if(cancel_r)begin diskop <= 1'b0;chr_3 <= cur_chr_3_r;lne <= cur_lne_r;end
+					else if (slide_bar_hit_r && (slide_scale < 128)) slide_val <= slide_scale;
+					else if (minus_hit_r && (slide_val != 0))
+						slide_val <= slide_val - 1;
+					else if (plus_hit_r && slide_val < 127)
+						slide_val <= slide_val + 1;		
 				end
 				if(end_cnt == 2)begin
 					if(N_load_sig || N_save_sig)begin
 						N_load_sig <= 1'b0;N_save_sig <= 1'b0;diskop <= 1'b0;
 					end
 				end
+				else if(slide_bar_hit_r || plus_hit_r || minus_hit_r) N_sound_nr <= slide_val;
 			end
 			else begin
 				if (end_cnt == 1)begin
@@ -222,8 +228,8 @@ wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 							slide_val <= edit_chr;
 						end
 						if(cancel_r)begin diskop  <= 1'b0;chr_3 <= cur_chr_3_r;lne <= cur_lne_r;end
-						if(load_pressed_r)begin diskop <= 1'b1; load <= 1'b1;chr_3 <= cur_chr_3_r;lne <= cur_lne_r;end
-						if(save_pressed_r)begin diskop <= 1'b1; load <= 1'b0;chr_3 <= cur_chr_3_r;lne <= cur_lne_r;end	
+						if(load_pressed_r)begin diskop <= 1'b1; load <= 1'b1;chr_3 <= 11;lne <= 3;slide_val <= N_sound_nr;end
+						if(save_pressed_r)begin diskop <= 1'b1; load <= 1'b0;chr_3 <= 11;lne <= 3;slide_val <= N_sound_nr;end	
 					end
 					else if (slide_bar_hit_r && (slide_scale < 128)) slide_val <= slide_scale;
 					else if (minus_hit_r && (slide_val != 0))
