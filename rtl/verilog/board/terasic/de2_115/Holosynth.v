@@ -68,7 +68,6 @@ module Holosynth(
 	DRAM_ADDR,
 	DRAM_BA,
 	DRAM_CAS_N,
-
 	DRAM_CKE,
 	DRAM_CLK,
 	DRAM_CS_N,
@@ -426,8 +425,8 @@ synthesizer  synthesizer_inst(
    .LTM_ADC_DIN(LTM_ADC_DIN),
    .LTM_ADC_DOUT(LTM_ADC_DOUT),
    .LTM_ADC_PENIRQ_n(LTM_ADC_PENIRQ_n),
-   .LTM_SCEN(LTM_SCEN),
-   .LTM_SDA(LTM_SDA)
+//   .LTM_SCEN(LTM_SCEN),
+//   .LTM_SDA(LTM_SDA)
 `endif
 );
 
