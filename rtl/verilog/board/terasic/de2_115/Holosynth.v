@@ -68,7 +68,6 @@ module Holosynth(
 	DRAM_ADDR,
 	DRAM_BA,
 	DRAM_CAS_N,
-
 	DRAM_CKE,
 	DRAM_CLK,
 	DRAM_CS_N,
@@ -317,7 +316,7 @@ assign	FL_WP_N = 1'b1;
 //`define _VEEK_Graphics
 `define _LTM_Graphics
 
-`define _Nios
+//`define _Nios
 
 assign VGA_R = VGA_R_w[9:2];
 assign VGA_G = VGA_G_w[9:2];
@@ -426,8 +425,8 @@ synthesizer  synthesizer_inst(
    .LTM_ADC_DIN(LTM_ADC_DIN),
    .LTM_ADC_DOUT(LTM_ADC_DOUT),
    .LTM_ADC_PENIRQ_n(LTM_ADC_PENIRQ_n),
-   .LTM_SCEN(LTM_SCEN),
-   .LTM_SDA(LTM_SDA)
+//   .LTM_SCEN(LTM_SCEN),
+//   .LTM_SDA(LTM_SDA)
 `endif
 );
 

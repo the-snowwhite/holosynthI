@@ -2,8 +2,8 @@ module touch(
 	input iRST_n,
 	input sys_clk,
 	// Input Port(s)
-	input [7:0]x,
-	input [7:0]y,
+	input [7:0]x_in,
+	input [9:0]y_in,
 	input new_coord_r,
 	input penirq_n,
 	input transmit_en,
@@ -26,6 +26,16 @@ module touch(
 	output reg[7:0]N_sound_nr
 );
 
+`ifdef _LTM_Graphics	         
+	wire[7:0] x = x_in;
+	wire[7:0] y = y;
+`endif
+`ifdef _VEEK_Graphics	         
+	wire[7:0] x = x_in;
+	wire[7:0] y = ((y_in * 5) >> 2);
+`endif
+
+
 parameter x_off = 7;
 parameter y_off = 16;
 
@@ -39,7 +49,7 @@ assign touch_status_data[6] = edit_chr;
 //assign touch_status_data[7] = slide_val;
 assign touch_status_data[7] = sys_real_dat_r;
 assign touch_status_data[8] = x;
-assign touch_status_data[9] = N_sound_nr;
+assign touch_status_data[9] = y;
 
 reg write_nr_pressed = 1'b0;
 reg [7:0]hit_y, hit_x, rel_x, rel_y, t1_x,t2_x;
