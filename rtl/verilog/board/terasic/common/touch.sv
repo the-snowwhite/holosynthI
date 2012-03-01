@@ -8,6 +8,8 @@ module touch(
 	input penirq_n,
 	input transmit_en,
 	input [7:0]disp_data[94],
+	input sys_real,
+	input [7:0]sys_real_dat,
 	input  N_adr_9,				// end transfer sig
 
 	// Output Port(s)
@@ -34,7 +36,8 @@ assign touch_status_data[3] = rel_y;
 assign touch_status_data[4] = chr_3;
 assign touch_status_data[5] = lne;
 assign touch_status_data[6] = edit_chr;
-assign touch_status_data[7] = slide_val;
+//assign touch_status_data[7] = slide_val;
+assign touch_status_data[7] = sys_real_dat_r;
 assign touch_status_data[8] = x;
 assign touch_status_data[9] = N_sound_nr;
 
@@ -106,6 +109,9 @@ wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 	wire [3:0] cur_x, cur_chr_3, cur_y, cur_lne;
 	
 	wire start_p_cnt = transmit_en_r && !transmit_en_dly;	
+	reg [7:0]sys_real_dat_r;
+	
+	always @(posedge sys_real) sys_real_dat_r <= sys_real_dat;
 	
 	always @(posedge sys_clk) begin
 		sample_hit_r <= sample_hit;

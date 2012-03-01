@@ -196,19 +196,23 @@ reg    [31:0]VGA_CLK_o;
 wire   sysclk = VGA_CLK_o[10];
 wire 	 touch_clk = VGA_CLK_o[10];
 
+wire sys_real;
+wire [7:0] sys_real_dat;
 
 //---				---//
 
 MIDI_UART MIDI_UART_inst (
-	.CLOCK_25		(CLOCK_25),	// input  reset sig
-	.sys_clk		(sysclk),	// input  sys_clk_sig
-	.iRST_N			(iRST_N),	// input  reset_sig
+	.CLOCK_25		(CLOCK_25),		// input  reset sig
+	.sys_clk		(sysclk),			// input  sys_clk_sig
+	.iRST_N			(iRST_N),		// input  reset_sig
 	.initial_reset	(initial_reset),	// input  reset_timing_sig
-	.midi_rxd		(midi_rxd),	// input  midi_rxd_sig
+	.midi_rxd		(midi_rxd),		// input  midi_rxd_sig
+	.sys_real		(sys_real),		// realtime sysex msg arrived
+	.sys_real_dat	(sys_real_dat),		// realtime sysex msg databyte
 	.byteready		(byteready),	// output  byteready_sig
 	.cur_status		(cur_status),	// output [7:0] cur_status_sig
 	.midi_bytes		(midi_bytes),	// output [7:0] midi_bytes_sig
-	.databyte		(databyte) 	// output [7:0] databyte_sig
+	.databyte		(databyte) 		// output [7:0] databyte_sig
 );
 
 midi_decoder #(.VOICES(VOICES),.V_WIDTH(V_WIDTH)) midi_decoder_inst(
@@ -402,6 +406,8 @@ reg new_coord_r;
 		.disp_data( disp_data ),
 		.penirq_n (LTM_ADC_PENIRQ_n),
 		.touch_status_data (status_data[2:11]),
+		.sys_real		(sys_real),		// realtime sysex msg arrived
+		.sys_real_dat	(sys_real_dat),		// realtime sysex msg databyte
 		.disp_val(disp_val),
 		.chr_3 ( chr_3 ),
 		.lne( lne ),
