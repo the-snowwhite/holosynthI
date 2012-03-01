@@ -46,7 +46,7 @@ module synthesizer (
 	inout		AUD_BCLK,				//	Audio CODEC Bit-Stream Clock
 	output		AUD_XCK,					//	Audio CODEC Chip Clock
 
-	input 		N_adr_data_rdy,				// midi data num ready from Nios
+	input [1:0]		N_adr_data_rdy,				// midi data num ready from Nios
 	input	[9:0]	N_adr,				// controller nr.
 	output	[7:0]	N_synth_out_data,				// data byte
 	input	[7:0]	N_synth_in_data,				// data byte
@@ -135,8 +135,9 @@ wire 	off_note_error;
 wire [13:0]pitch_val;
 wire signed [7:0] env_buf[16][V_OSC];	
 wire signed [7:0] osc_buf[16][V_OSC];	
-wire signed [7:0] mat_buf[32][V_OSC];	
-wire signed [7:0] com_buf[32];	
+wire signed [7:0] mat_buf1[16][V_OSC];	
+wire signed [7:0] mat_buf2[16][V_OSC];	
+wire signed [7:0] com_buf[16][2];	
 
 wire [7:0] o_index;
 	
@@ -195,19 +196,23 @@ reg    [31:0]VGA_CLK_o;
 wire   sysclk = VGA_CLK_o[10];
 wire 	 touch_clk = VGA_CLK_o[10];
 
+wire sys_real;
+wire [7:0] sys_real_dat;
 
 //---				---//
 
 MIDI_UART MIDI_UART_inst (
-	.CLOCK_25		(CLOCK_25),	// input  reset sig
-	.sys_clk		(sysclk),	// input  sys_clk_sig
-	.iRST_N			(iRST_N),	// input  reset_sig
+	.CLOCK_25		(CLOCK_25),		// input  reset sig
+	.sys_clk		(sysclk),			// input  sys_clk_sig
+	.iRST_N			(iRST_N),		// input  reset_sig
 	.initial_reset	(initial_reset),	// input  reset_timing_sig
-	.midi_rxd		(midi_rxd),	// input  midi_rxd_sig
+	.midi_rxd		(midi_rxd),		// input  midi_rxd_sig
+	.sys_real		(sys_real),		// realtime sysex msg arrived
+	.sys_real_dat	(sys_real_dat),		// realtime sysex msg databyte
 	.byteready		(byteready),	// output  byteready_sig
 	.cur_status		(cur_status),	// output [7:0] cur_status_sig
 	.midi_bytes		(midi_bytes),	// output [7:0] midi_bytes_sig
-	.databyte		(databyte) 	// output [7:0] databyte_sig
+	.databyte		(databyte) 		// output [7:0] databyte_sig
 );
 
 midi_decoder #(.VOICES(VOICES),.V_WIDTH(V_WIDTH)) midi_decoder_inst(
@@ -255,8 +260,8 @@ midi_controllers_unit #(.VOICES(VOICES),.V_OSC(V_OSC)) midi_controllers(
 //	cpu signals //
 	.N_adr_data_rdy		( N_adr_data_rdy ),					// midi data ready from Nios
 	.N_adr			( N_adr[8:0] ),				// controller nr.
-	.N_synth_out_data	( N_synth_out_data ),		// data byte
-	.N_synth_in_data	( N_synth_in_data ),		// data byte
+	.N_synth_out_data	( N_synth_out_data ),		// data byte from synth to nios
+	.N_synth_in_data	( N_synth_in_data ),		// data byte from nios to synth
 	.N_save_sig		( N_save_sig ),
 	.N_load_sig		( N_load_sig ),
 //	touch signals	 //
@@ -266,7 +271,8 @@ midi_controllers_unit #(.VOICES(VOICES),.V_OSC(V_OSC)) midi_controllers(
 //	.synth_data( synth_data ),
 	.env_buf		( env_buf ),
 	.osc_buf		( osc_buf ),
-	.mat_buf		( mat_buf ),
+	.mat_buf1	( mat_buf1 ),
+	.mat_buf2	( mat_buf2 ),
 	.com_buf		( com_buf ),
 	.pitch_val		( pitch_val )
 );
@@ -302,7 +308,8 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS)) synth_engine_inst	
 //	.synth_data ( synth_data ),
 	.env_buf( env_buf ),
 	.osc_buf( osc_buf ),
-	.mat_buf( mat_buf ),
+	.mat_buf1( mat_buf1 ),
+	.mat_buf2( mat_buf2 ),
 	.com_buf( com_buf ),
 	.pitch_val ( pitch_val )
 );
@@ -348,7 +355,7 @@ assign RLED[8:1] = {voice_free[7],voice_free[6],voice_free[5],voice_free[4],
 
 
 // LCD Display + Touch + +++++++++++++++++++--- Color ----------------------------------//
-	wire [7:0]disp_data[64];
+	wire [7:0]disp_data[94];
 		
 display display_inst_1(		
 	// VGA output //		
@@ -374,13 +381,15 @@ display display_inst_1(
 	.status_data	( status_data ),
 	.DLY2		(DLY2),
 	.chr_3		( chr_3 ),
+	.col ( col ),
+	.row( row ),
 	.lne		( lne ),
 	.slide_val	( slide_val )
 );
 wire [7:0]status_data[12];
 ///// Touch Controller files /////////////
 
-wire [3:0] chr_3,lne;
+wire [3:0] chr_3,lne,col,row;
 wire [7:0]edit_chr,slide_val;
 wire [7:0]disp_val;
 wire write_slide;
@@ -397,9 +406,13 @@ reg new_coord_r;
 		.disp_data( disp_data ),
 		.penirq_n (LTM_ADC_PENIRQ_n),
 		.touch_status_data (status_data[2:11]),
+		.sys_real		(sys_real),		// realtime sysex msg arrived
+		.sys_real_dat	(sys_real_dat),		// realtime sysex msg databyte
 		.disp_val(disp_val),
 		.chr_3 ( chr_3 ),
 		.lne( lne ),
+		.col ( col ),
+		.row( row ),
 		.slide_val(slide_val),
 		.write_slide ( write_slide ),
 		.N_save_sig ( N_save_sig ),	//save patch to sd
