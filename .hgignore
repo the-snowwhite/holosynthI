@@ -25,3 +25,5 @@ syn/*/*/*/*.txt
 *.map
 **/software/**/Makefile
 **/software/**/create-this-app
+*.qip
+**/greybox*

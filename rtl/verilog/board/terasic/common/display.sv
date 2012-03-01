@@ -116,7 +116,7 @@ module display(
 			string text_data5 = " CT  FT LVL MOD  FB Ksc OFS pan Bct Bft Mi  FBi ";
 			string text_data6 = " Active keys                            Confirm ";
 			string text_data7 = "   !!!  Note Off ERROR !!!                      ";
-			string text_data8 = "aKY onx h_x h_y r_x r_y chr lne eCR sVL  x   y  ";
+			string text_data8 = "aKY onx h_x h_y r_x r_y chr lne eCR sRL  x   y  ";
 			case (lne) 
 				0 :	char_buffer = text_data0[indx];
 				1 :	char_buffer = text_data1[indx];
@@ -148,7 +148,7 @@ module display(
 
 	wire [7:0]var_str;
 	reg [7:0]itostr;
-	reg tgle;
+	reg tgle;	
 		
 	always @(posedge VGA_CLK)begin
 		if (tgle)begin chr_indx <= chr_indx+1; end

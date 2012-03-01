@@ -1,10 +1,12 @@
 module MIDI_UART(
-	input   			CLOCK_25,
-	input				sys_clk,
-	input   			iRST_N,
-	input   			midi_rxd,
-	input				initial_reset,
-	output	reg			byteready,
+	input   				CLOCK_25,
+	input					sys_clk,
+	input   				iRST_N,
+	input   				midi_rxd,
+	input					initial_reset,
+	output	reg		byteready,
+	output   reg		sys_real,
+	output	reg[7:0]	sys_real_dat,
 	output	reg[7:0]	cur_status,
 	output	reg[7:0]	midi_bytes,
 	output	reg[7:0]	databyte
@@ -102,7 +104,7 @@ end
 		if(!iRST_N) byteready<=0;
 		else begin
 			if (initial_reset) byteready<=0;
-			else if ( byte_end ) byteready<=1;
+			else if ( byte_end && (sys_real == 1'b0)) byteready<=1;
 			else byteready<=0;
 		end
     end			
@@ -111,11 +113,18 @@ end
 	always @(negedge startbit_d or negedge iRST_N)begin
 		if(!iRST_N)begin midi_bytes<=0; cur_status<=0;end
 		else begin
-			if(samplebyte & 8'h80)begin
-				midi_bytes<=0;
-				cur_status<=samplebyte;
+			if(samplebyte[7:4] == 4'hf && samplebyte[3:0]!=4'h0)begin
+				sys_real_dat <=samplebyte;
+				sys_real<= 1'b1; 
 			end
-			else midi_bytes<=midi_bytes+1;
+			else begin
+				sys_real <= 1'b0;
+				if(samplebyte & 8'h80)begin
+					midi_bytes<=0;
+					cur_status<=samplebyte;
+				end
+				else midi_bytes<=midi_bytes+1;
+			end
 		end
 	end
 		
