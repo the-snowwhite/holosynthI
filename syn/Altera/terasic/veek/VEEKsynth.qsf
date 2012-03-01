@@ -6,7 +6,7 @@ set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE115F29C7
 set_global_assignment -name TOP_LEVEL_ENTITY "VEEKsynth"
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 9.1
-set_global_assignment -name LAST_QUARTUS_VERSION 11.1
+set_global_assignment -name LAST_QUARTUS_VERSION "11.1 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:35:12 MAY 15,2011"
 set_global_assignment -name DEVICE_FILTER_PACKAGE FPGA
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT 780
@@ -877,7 +877,7 @@ set_global_assignment -name VERILOG_FILE bar_blank.v
 set_global_assignment -name VERILOG_FILE bar_big.v
 set_global_assignment -name VERILOG_FILE Audio_pll.v
 set_global_assignment -name VERILOG_FILE adc_spi_controller.v
-set_global_assignment -name SDC_FILE VEEKsynth.SDC
+set_global_assignment -name SDC_FILE VEEKsynth.sdc
 set_global_assignment -name SYSTEMVERILOG_FILE mixer.sv
 set_global_assignment -name SYSTEMVERILOG_FILE midi_controllers_unit.sv
 set_global_assignment -name SYSTEMVERILOG_FILE midi_decoder.sv
@@ -900,5 +900,6 @@ set_global_assignment -name SIGNALTAP_FILE stp1.stp
 set_global_assignment -name CDF_FILE Holosynth_AS.cdf
 set_global_assignment -name CDF_FILE Holosynth_JTAG.cdf
 set_global_assignment -name CDF_FILE Holosynth.cdf
+
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

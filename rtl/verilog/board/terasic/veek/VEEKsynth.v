@@ -282,7 +282,9 @@ input		          		TOUCH_PENIRQ_N;
 //  REG/WIRE declarations
 //=======================================================
 
-wire N_adr_data_rdy,N_save_sig,N_load_sig;
+wire N_save_sig,N_load_sig;
+wire [1:0]N_adr_data_rdy; // 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk 
+
 wire [7:0]N_sound_nr;
 wire [9:0]N_adr;
 

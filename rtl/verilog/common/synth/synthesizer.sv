@@ -399,8 +399,8 @@ reg new_coord_r;
 	touch	touch	(
 		.iRST_n 	( DLY0 ),
 		.sys_clk  ( touch_clk ),  		//input system clock		
-		.x (~x_coord[11:4]),
-		.y (y_coord[11:4]),
+		.x_in (~x_coord[11:4]),
+		.y_in (y_coord[11:4]),
 		.new_coord_r (new_coord_r),
 		.transmit_en (transmit_en_r ),
 		.disp_data( disp_data ),
