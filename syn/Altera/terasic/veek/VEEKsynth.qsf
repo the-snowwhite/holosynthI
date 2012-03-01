@@ -854,6 +854,7 @@ set_global_assignment -name SEARCH_PATH ../../../../rtl/verilog/common
 set_global_assignment -name SEARCH_PATH ../../../../rtl/verilog/common/midi
 set_global_assignment -name SEARCH_PATH ../../../../rtl/verilog/common/synth
 set_global_assignment -name SEARCH_PATH ../../../../rtl/verilog/common/display
+set_global_assignment -name QSYS_FILE nios_2.qsys
 set_global_assignment -name VERILOG_FILE VEEKsynth.v
 set_global_assignment -name SYSTEMVERILOG_FILE utils.sv
 set_global_assignment -name VERILOG_FILE VGA_PLL.v

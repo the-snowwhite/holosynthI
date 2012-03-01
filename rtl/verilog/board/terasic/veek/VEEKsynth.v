@@ -316,7 +316,7 @@ assign	FL_WP_N = 1'b1;
 
 `define _VEEK_Graphics
 //`define _LTM_Graphics
-//`define _Nios
+`define _Nios
 
 assign VGA_R = VGA_R_w[9:2];
 assign VGA_G = VGA_G_w[9:2];
