@@ -4,7 +4,7 @@ module display(
 	input [7:0]scan_code2,
 	input [7:0]scan_code3,
 	input [7:0]scan_code4,
-	input [7:0]disp_data[64],
+	input [7:0]disp_data[94],
 	input [7:0]status_data[12],
 	input DLY2,
 	output SYNC,	
@@ -21,14 +21,13 @@ module display(
 	//	output [3:0]color,
 	input [3:0]chr_3,
 	input [3:0]lne,
+	input [3:0]col,
+	input [3:0]row,
 	input [7:0] slide_val
-);
+);				
+
 	parameter key_y_offset = 370;
 	assign  SYNC=1;	
-
-// cursor //
-	wire cur = (CounterX >= (chr_3 * 4*16) && CounterX < ((chr_3+1) *4*16)
-					&& (CounterY >= lne *16) && (CounterY <= (lne +1)*16)) ? 1:0;
 
 ///////////   Color Settings //////	
 	wire 	[3:0]color;	
@@ -44,6 +43,7 @@ module display(
 	assign color_R[4] = 9'h1f0; assign color_G[4] = 9'h1f0; assign color_B[4] = 9'h1f0;  // Cursor
 	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h0f0;  // Text		
 	assign color_R[6] = 9'h100; assign color_G[6] = 9'h130; assign color_B[6] = 9'h1f0;  // slider		
+	assign color_R[7] = 9'h1ff; assign color_G[7] = 9'h086; assign color_B[7] = 9'h006;  // marker		
 	
 	assign VGA_R = color_R[color];
 	assign VGA_G = color_G[color];
@@ -102,20 +102,21 @@ module display(
 	reg [9:0]chr_indx;
 	wire [5:0]chr = chr_indx[5:0];
 	wire [3:0]line = chr_indx[9:6];
-	wire [2:0]data_var = chr_indx[4:2];
+	wire [3:0]data_var = chr_indx[5:2];
 
 	function [7:0]char_buffer;
 		input [7:0]indx;
 		input [3:0]lne;
 		begin
 			string text_data0 = "                                                ";
-			string text_data1 = " R1  L1  R2  L2  R3  L3  R4  L4                 ";
-			string text_data2 = " CT  FT LVL MOD  FB Ksc OFS Bct Bft     PBr VOL ";
-			string text_data3 = " Active keys                                    ";
-			string text_data4 = "   !!!  Note Off ERROR !!!                      ";
-			string text_data5 = "                                    Load nr     ";
-			string text_data6 = "                  Cancel  Confirm  Write nr     ";
-			string text_data7 = "aKY onx h_x h_y r_x r_y chr lne eCR sVL  x   y  ";
+			string text_data1 = " R1  L1  R2  L2  R3  L3  R4  L4 PBr VOL  Cancel ";
+			string text_data2 = "                                    Load Pnr:   ";
+			string text_data3 = "                                    Save        ";
+			string text_data4 = "                                        Confirm ";
+			string text_data5 = " CT  FT LVL MOD  FB Ksc OFS pan Bct Bft Mi  FBi ";
+			string text_data6 = " Active keys                            Confirm ";
+			string text_data7 = "   !!!  Note Off ERROR !!!                      ";
+			string text_data8 = "aKY onx h_x h_y r_x r_y chr lne eCR sRL  x   y  ";
 			case (lne) 
 				0 :	char_buffer = text_data0[indx];
 				1 :	char_buffer = text_data1[indx];
@@ -125,6 +126,7 @@ module display(
 				5 :	char_buffer = text_data5[indx];
 				6 :	char_buffer = text_data6[indx];
 				7 :	char_buffer = text_data7[indx];
+				8 :	char_buffer = text_data8[indx];
 				default : char_buffer = " ";
 			endcase
 		end
@@ -146,106 +148,104 @@ module display(
 
 	wire [7:0]var_str;
 	reg [7:0]itostr;
-	reg tgle;
+	reg tgle;	
 		
 	always @(posedge VGA_CLK)begin
 		if (tgle)begin chr_indx <= chr_indx+1; end
 		tgle <= ~tgle; 
 		char_adr <= {line,chr};
 		cnv_var(chr[1:0],itostr,var_str);
-		if(line <= 0) begin
-			char_data <= char_buffer(chr,(line+1));
+		if(line == 0) begin
+			char_data <= char_buffer(chr,1);
 		end
-		else if(line == 1 && chr < 32)begin
-			itostr <= disp_data[{3'b000,data_var}];
-			char_data <= var_str;
+		else if(line == 1)begin
+			if(chr < (8*4))begin
+				itostr <= disp_data[{3'b000,data_var}];
+				char_data <= var_str;
+			end
+			else if (chr <= (10*4))begin
+				itostr <= disp_data[{5'b10111,data_var[1:0]}];
+				char_data <= var_str;
+			end
 		end
-		else if(line == 2 && chr < 32)begin
-			itostr <= disp_data[{3'b001,data_var}];
-			char_data <= var_str;
+		else if(line == 2)begin
+			if (chr < 32)begin
+				itostr <= disp_data[{4'b0001,data_var[2:0]}];
+				char_data <= var_str;
+			end else begin
+				char_data <= char_buffer(chr,0);			
+			end
 		end
-		else if(line == 3 && chr < 32)begin
-			itostr <= disp_data[{3'b010,data_var}];
-			char_data <= var_str;
+		else if(line == 3) begin
+			if (chr < 32)begin
+				itostr <= disp_data[{3'b001,data_var}];
+				char_data <= var_str;
+			end else if(chr <= 4*11)begin
+				char_data <= char_buffer(chr,2);			
+			end else begin
+				itostr <= status_data[11];
+				char_data <= var_str;		
+			end
 		end			
-		else if(line == 4 && chr < 32)begin
-			itostr <= disp_data[{3'b011,data_var}];
-			char_data <= var_str;
+		else if(line == 4)begin
+			if(chr < 32)begin
+				itostr <= disp_data[{4'b0011,data_var[2:0]}];
+				char_data <= var_str;
+			end else begin
+				char_data <= char_buffer(chr,3);			
+			end
 		end			
 		else if(line == 5)begin
 			char_data <= char_buffer(chr,(0));
 		end			
 		else if(line == 6)begin
-			char_data <= char_buffer(chr,(2));
+			char_data <= char_buffer(chr,(5));
 		end			
 		else if(line == 7 )begin
-			if(chr < (8*4))begin
-				itostr <= disp_data[{3'b100,data_var}];				
-				char_data <= var_str;
-			end
-			else if(chr >= (8*4) && chr < (9*4))begin
-				itostr <= disp_data[{3'b101,data_var}];
-				char_data <= var_str;
-			end
-			else if(chr >= (10*4) && chr < (12*4))begin
-				itostr <= disp_data[{3'b101,data_var}-1];
+			if(chr < (12*4))begin
+				itostr <= disp_data[{3'b010,data_var}];				
 				char_data <= var_str;
 			end
 		end			
 		else if(line == 8)begin
-			if(chr < (8*4))begin
-				itostr <= disp_data[{3'b110,data_var}];				
+			if(chr < (12*4))begin
+				itostr <= disp_data[{3'b011,data_var}];				
 				char_data <= var_str;
 			end
-			else if(chr >= (8*4) && chr < (9*4))begin
-				itostr <= disp_data[{3'b111,data_var}];
-				char_data <= var_str;
-			end
-		end			
+		end
 		else if(line == 9)begin
-			if(chr < (11*4))begin
-				char_data <= char_buffer(chr,(5));
-			end
-			else if (chr < 12*4 ) begin
-				itostr <= status_data[7'd11];				
+			if(chr < (12*4))begin
+				itostr <= disp_data[{3'b100,data_var}];				
 				char_data <= var_str;
 			end
-		end	
+		end
 		else if(line == 10)begin
-			if( chr <=11 )begin
-				char_data <= char_buffer(chr,(3));
+			if(chr < (12*4))begin
+				itostr <= disp_data[{3'b101,data_var}];				
+				char_data <= var_str;
+			end
+		end
+		else if(line == 11 )begin
+			char_data <= char_buffer(chr,(0));
+		end			
+		else if(line == 12)begin
+			if( chr <=11 || chr >= 39)begin
+				char_data <= char_buffer(chr,(6));
 			end
 			else if (chr <= 15) begin
 				itostr <= status_data[0];
 				char_data <= var_str;
 			end
 		end		
-		else if(line == 11)begin
-			if(chr < (11*4))begin
-				char_data <= char_buffer(chr,(6));
-			end
-			else if (chr < 12*4 ) begin
-				itostr <= status_data[7'd11];				
-				char_data <= var_str;
-			end
-		end	
-//		else if(line == 12 && (status_data[1] == 1))begin
-		else if(line == 12 && (status_data[1] >= 64))begin
-			char_data <= char_buffer(chr,(4));
-		end			
-		else if(line == 13 )begin
-			char_data <= char_buffer(chr,(0));
-		end			
-		else if(line == 14 )begin
+		else if(line == 13 && (status_data[1] >= 64))begin
 			char_data <= char_buffer(chr,(7));
 		end			
+		else if(line == 14 )begin
+			char_data <= char_buffer(chr,(8));
+		end			
 		else if(line == 15)begin
-			if(chr < (8*4))begin
+			if(chr < (12*4))begin
 				itostr <= status_data[{3'b000,data_var}];
-				char_data <= var_str;
-			end
-			else if(chr >= (8*4) && chr < (12*4))begin
-				itostr <= status_data[{3'b001,data_var}];
 				char_data <= var_str;
 			end
 		end			
@@ -556,20 +556,28 @@ module display(
 
 
 /////////VGA data out///////
+// cursor //
+	wire cur = (CounterX >= (chr_3 * 4*16) && CounterX < ((chr_3+1) *4*16)
+					&& (CounterY >= lne *16) && (CounterY <= (lne +1)*16)) ? 1:0;
+
+	wire marker = (CounterX >= (col * 4*16) && CounterX < ((col+1) *4*16)
+					&& (CounterY >= row *16) && (CounterY <= (row +1)*16)) ? 1:0;
+
 	wire w_key 		=~blank_bar &  white_bar;
 	wire key_		= blank_bar |  white_bar;
 	assign	white = (drag_space | w_key) & inLcdDisplay;
 	assign 	black	= ~w_key & key_ & inLcdDisplay;
 	assign	text 	= intextarea & inLcdDisplay;
 	assign	slider_act 	= slider & inLcdDisplay;
-	assign color=(     // color of element white key=3,black key=2,key=1,background=0;
+	assign color=(     // color of element text = 5, curser = 4, white key=3,black key=2,key=1,background=0;
+		( marker ) ? 7 :(
 		( slider_act ) ? 6 :(
 		( Char_ACT ) ? 5 :(
 		( cur )? 4 :(
 		( white )? 3 :(
 		( black )? 2:(
 		( text )?1:0
-		)))))
+		))))))
 	);
 
 endmodule

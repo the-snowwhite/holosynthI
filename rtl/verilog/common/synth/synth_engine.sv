@@ -18,8 +18,9 @@ module synth_engine (
 // from midi_controller_unit
 	input signed [7:0] env_buf[16][V_OSC],
 	input signed [7:0] osc_buf[16][V_OSC],
-	input signed [7:0] mat_buf[32][V_OSC],
-	input signed [7:0] com_buf[32],
+	input signed [7:0] mat_buf1[16][V_OSC],
+	input signed [7:0] mat_buf2[16][V_OSC],
+	input signed [7:0] com_buf[16][2],
 	input [13:0] pitch_val,
 // from env gen
 	output reg voice_free[VOICES]
@@ -155,7 +156,7 @@ wire [7:0]voice_free_r2[VOICES][V_OSC];
 		.osc_ft( osc_buf[1] ),// osc_ft
 		.b_ct ( osc_buf[8] ),// base_ct
 		.b_ft ( osc_buf[9] ),// base_ft
-		.pb_value( com_buf[0] ),// pb_value
+		.pb_value( com_buf[0][0] ),// pb_value
 		.pitch_val( pitch_val ),
 		.k_scale ( osc_buf[5] ),// k_scale
 		.switch( switch ),
@@ -183,11 +184,14 @@ wire [7:0]voice_free_r2[VOICES][V_OSC];
 		.iRST_N(iRST_N) ,	// input  iRST_N_sig
     	.switch	  ( switch ),			//input			
 		.level_mul(level_mul), 	// output [7:0] level_mul_sig
-		.osc_lvl( osc_buf[2] ) ,	// input  rate 0:3 // r
-		.osc_mod( osc_buf[3] ) ,	// input level 0:3 // l
-		.osc_feedb(osc_buf[4]) ,	// input  key_on_sig
-		.m_vol ( com_buf[1] ),
-		.mat_buf ( mat_buf ),
+		.osc_lvl( osc_buf[2] ) ,	// 
+		.osc_mod( osc_buf[3] ) ,	// 
+		.osc_feedb(osc_buf[4]) ,	// 
+		.osc_mod_in( osc_buf[10] ) ,	// 
+		.osc_feedb_in(osc_buf[11]) ,	// 
+		.m_vol ( com_buf[1][0] ),
+		.mat_buf1 ( mat_buf1 ),
+		.mat_buf2 ( mat_buf2 ),
 		.sine_lut_out ( sine_lut_out ),
 		.xxxx_max ( xxxx_max ),
 		.e_env_sel(e_env_sel),
