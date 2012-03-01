@@ -283,9 +283,7 @@ input		          		TOUCH_PENIRQ_N;
 //  REG/WIRE declarations
 //=======================================================
 
-wire N_save_sig,N_load_sig;
-wire [1:0]N_adr_data_rdy; // 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk 
-
+wire N_adr_data_rdy,N_save_sig,N_load_sig;
 wire [7:0]N_sound_nr;
 wire [9:0]N_adr;
 
@@ -317,7 +315,7 @@ assign	FL_WP_N = 1'b1;
 //`define _VEEK_Graphics
 `define _LTM_Graphics
 
-`define _Nios
+//`define _Nios
 
 assign VGA_R = VGA_R_w[9:2];
 assign VGA_G = VGA_G_w[9:2];
@@ -392,7 +390,7 @@ synthesizer  synthesizer_inst(
 	.N_adr_data_rdy(N_adr_data_rdy) ,	// input  N_ctrl_sig
 	.N_adr(N_adr) ,	// input [9:0] N_synth_num_sig
 	.N_synth_out_data(N_synth_out_data), 	// output [7:0] N_synth_data_sig
-	.N_synth_in_data(N_synth_in_data), 	// input [7:0] N_synth_data_sig
+	.N_synth_in_data(N_synth_in_data), 	// output [7:0] N_synth_data_sig
 	.N_save_sig (N_save_sig),	//output
 	.N_load_sig (N_load_sig),	//output
 	.N_sound_nr (N_sound_nr),	//output
