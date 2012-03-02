@@ -95,6 +95,12 @@ module VEEKsynth(
 	FL_WE_N,
 	FL_WP_N,
 
+	///EPCS
+	DCLK,
+	DATA0,
+	ASDO,
+	nCSO,
+
 	//////////// GPIO, GPIO connect to LTM - 4.3" LCD and Touch //////////
 	LTM_ADC_BUSY,
 	LTM_ADC_DCLK,
@@ -236,6 +242,12 @@ input		          		FL_RY;
 output		          		FL_WE_N;
 output		          		FL_WP_N;
 
+////EPCS
+output                   DCLK;
+input                    DATA0;
+output                   ASDO;
+output                   nCSO;
+
 //////////// GPIO, GPIO connect to LTM - 4.3" LCD and Touch //////////
 input		          		LTM_ADC_BUSY;
 output		          		LTM_ADC_DCLK;
@@ -339,7 +351,7 @@ assign LCD_NCLK = VGA_CLK;
 
 `ifdef _Nios
     nios_2 u0 (
-        .reset_reset_n                                  (1'b1),                                  //  reset_0.reset_n
+        .reset_reset_n                                  (KEY[3]),                                  //  reset_0.reset_n
         .clk_clk                                        (CLOCK_50),                                        //    clk_0.clk
         .flash_write_n_to_the_cfi_flash      (FL_WE_N),      //    flash.flash_tristate_controller_tcm_write_n
         .flash_tri_state_bridge_flash_address      (FL_ADDR),      //         .flash_tristate_controller_tcm_address
@@ -375,8 +387,14 @@ assign LCD_NCLK = VGA_CLK;
        .sdram_wire_dqm(DRAM_DQM),
        .sdram_wire_ras_n(DRAM_RAS_N),
        .sdram_wire_we_n(DRAM_WE_N),
-       .sdram_clk (DRAM_CLK)                             //             sdram.clk
-  );
+       .sdram_clk (DRAM_CLK),                             //             sdram.clk
+       .ecps_dclk                            (DCLK),                            //                       ecps.dclk
+       .ecps_sce                             (nCSO),                             //                           .sce
+       .ecps_sdo                             (ASDO),                             //                           .sdo
+       .ecps_data0                           (DATA0)                            //                           .data0
+
+		 
+ );
 `endif
 
 	wire[1:0] N_irq;
@@ -395,7 +413,7 @@ synthesizer  synthesizer_inst(
 	.N_adr_data_rdy(N_adr_data_rdy) ,	// input  N_ctrl_sig
 	.N_adr(N_adr) ,	// input [9:0] N_synth_num_sig
 	.N_synth_out_data(N_synth_out_data), 	// output [7:0] N_synth_data_sig
-	.N_synth_in_data(N_synth_in_data), 	// output [7:0] N_synth_data_sig
+	.N_synth_in_data(N_synth_in_data), 	// input [7:0] N_synth_data_sig
 	.N_save_sig (N_save_sig),	//output
 	.N_load_sig (N_load_sig),	//output
 	.N_sound_nr (N_sound_nr),	//output
