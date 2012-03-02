@@ -11,6 +11,8 @@ module touch(
 	input sys_real,
 	input [7:0]sys_real_dat,
 	input  N_adr_9,				// end transfer sig
+	input 		  		prg_ch_cmd, 
+	input reg  [7:0]	prg_ch_data, 
 
 	// Output Port(s)
 	output reg [3:0]chr_3,
@@ -101,7 +103,7 @@ wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 
 	reg [7:0] edit_chr;
 	reg [3:0] penirq_cnt, end_cnt;
-	reg penirq_cnt_en, penirq_n_r, transmit_en_r;
+	reg penirq_cnt_en, penirq_n_r, transmit_en_r, prg_ch_cmd_r, prg_ch_cmd_r2;
 	
 	wire sample_hit = (penirq_cnt == 3'd3);
 	
@@ -119,7 +121,7 @@ wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 	wire [3:0] cur_x, cur_chr_3, cur_y, cur_lne;
 	
 	wire start_p_cnt = transmit_en_r && !transmit_en_dly;	
-	reg [7:0]sys_real_dat_r;
+	reg [7:0]sys_real_dat_r, prg_ch_data_r;
 	
 	always @(posedge sys_real) sys_real_dat_r <= sys_real_dat;
 	
@@ -142,8 +144,12 @@ wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 		minus_hit_r <= minus_hit;
 		drag_r <= drag;
 		slide_bar_hit_r <= slide_bar_hit;
+		prg_ch_cmd_r <= prg_ch_cmd;
+		prg_ch_cmd_r2 <= prg_ch_cmd_r;
 	end
 	
+//	always @(posedge prg_ch_cmd_r) prg_ch_data_r <= prg_ch_data;
+
 	always @(negedge transmit_en_r)begin
 		rel_x <= x;
 		rel_y <= y;
@@ -217,7 +223,9 @@ wire [7:0] slide_scale = (((hit_x - 40)<<7)/180);
 			N_load_sig <= 1'b0;N_save_sig <= 1'b0;diskop <= 1'b0;
 		end
 		else begin 
-			if(diskop)begin
+			if(!prg_ch_cmd && prg_ch_cmd_r)begin N_sound_nr <= prg_ch_data;N_load_sig <= 1'b1;end
+			else if(!prg_ch_cmd_r && prg_ch_cmd_r2) N_load_sig <= 1'b0; 
+			else if(diskop)begin
 				if(end_cnt == 1)begin
 					if(confirm_r)begin
 						if(load) N_load_sig <= 1'b1;

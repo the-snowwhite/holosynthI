@@ -4,8 +4,10 @@ module midi_controllers_unit (
 	input [17:0]SW,
 //@name from midi_decoder
 	input    		ictrl_cmd, 
+	input    		prg_ch_cmd, 
 	input  [7:0]	ictrl, 
 	input  [7:0]	ictrl_data, 
+	input  [7:0]	prg_ch_data, 
 	input  [7:0]	sysex_data[3], 
 	input    		pitch_cmd,
 	input    		sysex_cmd,

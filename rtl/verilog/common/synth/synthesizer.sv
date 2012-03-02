@@ -125,8 +125,8 @@ wire[7:0] cur_status,midi_bytes,databyte;
 wire 	key_on[VOICES];
 wire 	[7:0]	key_val[VOICES];
 wire 	[7:0]	vel_on[VOICES];
-wire ctrl_cmd,pitch_cmd,sysex_cmd;
-wire[7:0] ctrl,ctrl_data,sysex_data[3];
+wire ctrl_cmd,prg_ch_cmd,pitch_cmd,sysex_cmd;
+wire[7:0] ctrl,ctrl_data,prg_ch_data,sysex_data[3];
 wire [V_WIDTH:0]	active_keys;
 wire 	off_note_error;
 
@@ -230,9 +230,11 @@ midi_decoder #(.VOICES(VOICES),.V_WIDTH(V_WIDTH)) midi_decoder_inst(
 	.key_val	( key_val ),		// key midi number
 	.vel_on		( vel_on ),		// key velocity
 	.octrl_cmd	( ctrl_cmd ),		// 1 on first databyte 0 on second
+	.prg_ch_cmd		( prg_ch_cmd ), 
 	.pitch_cmd	( pitch_cmd ),		// 1 on first databyte 0 on second
 	.octrl		( ctrl),		// Controller nr.
 	.octrl_data	( ctrl_data),		// Controller Data
+	.prg_ch_data		( prg_ch_data ), 
 	.sysex_cmd	( sysex_cmd ),		// 1 on last databyte 
 	.sysex_data	( sysex_data ),		// Controller Data
 	.active_keys	( active_keys ),	//
@@ -408,6 +410,8 @@ reg new_coord_r;
 		.touch_status_data (status_data[2:11]),
 		.sys_real		(sys_real),		// realtime sysex msg arrived
 		.sys_real_dat	(sys_real_dat),		// realtime sysex msg databyte
+		.prg_ch_cmd		( prg_ch_cmd ), 
+		.prg_ch_data		( prg_ch_data ), 
 		.disp_val(disp_val),
 		.chr_3 ( chr_3 ),
 		.lne( lne ),

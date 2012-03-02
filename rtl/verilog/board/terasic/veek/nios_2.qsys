@@ -81,20 +81,20 @@
          type = "long";
       }
    }
-   element sd_controller_0.avalon_slave
-   {
-      datum baseAddress
-      {
-         value = "150999040";
-         type = "long";
-      }
-   }
    element sram.avalon_slave
    {
       datum _lockedAddress
       {
          value = "1";
          type = "boolean";
+      }
+   }
+   element sd_controller_0.avalon_slave
+   {
+      datum baseAddress
+      {
+         value = "150999040";
+         type = "long";
       }
    }
    element button
@@ -264,19 +264,19 @@
          type = "long";
       }
    }
+   element N_adr_dat_rdy.s1
+   {
+      datum baseAddress
+      {
+         value = "151000112";
+         type = "long";
+      }
+   }
    element N_synth_in_data.s1
    {
       datum baseAddress
       {
          value = "151000160";
-         type = "long";
-      }
-   }
-   element N_adr.s1
-   {
-      datum baseAddress
-      {
-         value = "151000192";
          type = "long";
       }
    }
@@ -288,27 +288,11 @@
          type = "long";
       }
    }
-   element N_irq.s1
+   element N_synth_sound_num.s1
    {
       datum baseAddress
       {
-         value = "151000128";
-         type = "long";
-      }
-   }
-   element N_adr_dat_rdy.s1
-   {
-      datum baseAddress
-      {
-         value = "151000112";
-         type = "long";
-      }
-   }
-   element button.s1
-   {
-      datum baseAddress
-      {
-         value = "151000176";
+         value = "151000208";
          type = "long";
       }
    }
@@ -325,19 +309,27 @@
          type = "long";
       }
    }
-   element N_synth_out_data.s1
+   element N_adr.s1
    {
       datum baseAddress
       {
-         value = "151000144";
+         value = "151000192";
          type = "long";
       }
    }
-   element N_synth_sound_num.s1
+   element button.s1
    {
       datum baseAddress
       {
-         value = "151000208";
+         value = "151000176";
+         type = "long";
+      }
+   }
+   element N_irq.s1
+   {
+      datum baseAddress
+      {
+         value = "151000128";
          type = "long";
       }
    }
@@ -351,6 +343,14 @@
       datum baseAddress
       {
          value = "0";
+         type = "long";
+      }
+   }
+   element N_synth_out_data.s1
+   {
+      datum baseAddress
+      {
+         value = "151000144";
          type = "long";
       }
    }
@@ -443,7 +443,7 @@
  <parameter name="projectName" value="" />
  <parameter name="sopcBorderPoints" value="false" />
  <parameter name="systemHash" value="1" />
- <parameter name="timeStamp" value="1330641586030" />
+ <parameter name="timeStamp" value="1330730354425" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
  <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
