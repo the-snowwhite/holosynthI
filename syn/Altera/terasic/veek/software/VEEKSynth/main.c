@@ -262,20 +262,6 @@ static void init_save_pio()
 
 int LoadDataFromSD( char *file_name )
 {
-    int volumes_mounted;
-    ////set spi clock divider coeff.
-    sd_set_clock_to_max( 80000000 );
-    printf("sleep 1000\n");
-    usleep (1000);
-    printf("mounting\n");
-    ////mount fat file system.
-    volumes_mounted = sd_fat_mount_all();
-
-    if( volumes_mounted <= 0 )
-    {
-        printf("Not mounted \n\r");
-    	return -1;
-    }
 //    char buf[800] = {0};
 //    sd_list("/",buf);
 //    int fd,sfd =0;
@@ -306,8 +292,12 @@ int LoadDataFromSD( char *file_name )
 						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x00);
 						IOWR_ALTERA_AVALON_PIO_DATA(N_SYNTH_IN_DATA_BASE, tmpBuf[i]);
 						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x03);// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk
+//						printf("data %d %s = %d \n",i,midi_buf2[i],tmpBuf[i]);
+					}
+					for(i=0; i < p2_size; i++ ){
 						printf("data %d %s = %d \n",i,midi_buf2[i],tmpBuf[i]);
 					}
+					printf("program loaded ...  \n");
 					IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x00);
 					// send ok back to touch by writing pulse on bit 9
 					IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, 0x200);
@@ -370,6 +360,7 @@ int SaveDataOnSD( char *file_name )
 int main()
 {
 	int ret_code;
+    int volumes_mounted;
 //	char string[128];
 	app_list = malloc( sizeof( app_list_struct ));
 
@@ -386,7 +377,32 @@ int main()
 		printf( "Error: Could not find any Sound Files on SD Card\nInsert a properly loaded SD Card then reset the board." );
         return -1;
 	}
-    while(1){
+    ////set spi clock divider coeff.
+    sd_set_clock_to_max( 80000000 );
+    printf("sleep 1000\n");
+    usleep (1000);
+    printf("mounting\n");
+    ////mount fat file system.
+    volumes_mounted = sd_fat_mount_all();
+
+    if( volumes_mounted <= 0 )
+    {
+        printf("Not mounted \n\r");
+    	return -1;
+    }
+   sd_set_clock_to_max( 80000000 );
+    printf("sleep 1000\n");
+    usleep (1000);
+    printf("mounting\n");
+    ////mount fat file system.
+    volumes_mounted = sd_fat_mount_all();
+
+    if( volumes_mounted <= 0 )
+    {
+        printf("Not mounted \n\r");
+    	return -1;
+    }
+   while(1){
         printf("Processing...\r\n");
 		printf("edge_capture = %d\n",edge_capture);
     	if(edge_capture == 1)

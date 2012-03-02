@@ -16,9 +16,11 @@ module midi_decoder(
 	output reg 	[7:0]	vel_on[VOICES],
 // controller data
 	output reg  		octrl_cmd, 
+	output reg  		prg_ch_cmd, 
 	output reg  		pitch_cmd,
 	output reg  [7:0]	octrl, 
 	output reg  [7:0]	octrl_data, 
+	output reg  [7:0]	prg_ch_data, 
 	output reg  		sysex_cmd,
 	output reg  [7:0]	sysex_data[3], 
 // status data
@@ -39,6 +41,9 @@ parameter V_WIDTH = utils::clogb2(VOICES);
 		 
 	wire is_st_ctrl=(
 		(cur_status[7:4]==4'hb)?1'b1:1'b0);
+
+	wire is_st_prg_changs=(
+		(cur_status[7:4]==4'hc)?1'b1:1'b0);
  
 	wire is_st_pitch=(
 		(cur_status[7:4]==4'he)?1'b1:1'b0);
@@ -138,9 +143,10 @@ reg [V_WIDTH:0]cur_slot;
 //			off_note<=0;
 			off_note_error<=1'b0;
 			off_note_error_flag<=0;
+			octrl_cmd <= 1'b0;prg_ch_cmd <=1'b0;sysex_cmd <= 1'b0;pitch_cmd <= 1'b0;
 		end 
 		else begin 
-			octrl_cmd <= 1'b0;sysex_cmd <= 1'b0;pitch_cmd <= 1'b0;
+			octrl_cmd <= 1'b0;prg_ch_cmd <=1'b0;sysex_cmd <= 1'b0;pitch_cmd <= 1'b0;
 			if(is_st_note_on)begin // Note on omni
 				if(is_data_byte)begin
 					if(active_keys >= VOICES) begin
@@ -183,6 +189,12 @@ reg [V_WIDTH:0]cur_slot;
 					octrl_data<=databyte;
 					octrl_cmd<=1'b1;
 				end
+			end	else if(is_st_prg_changs)begin // Control Change omni
+					prg_ch_cmd <= 1'b1;
+				if(is_data_byte)begin 
+					prg_ch_data<=databyte;
+					prg_ch_cmd <= 1'b0;
+				end	
 			end	else if(is_st_sysex)begin // Sysex
 				if(midi_bytes >=3 && midi_bytes <= 5)begin
 					sysex_data[midi_bytes-3]<=databyte;
