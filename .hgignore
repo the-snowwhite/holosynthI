@@ -8,7 +8,6 @@ syntax: glob
 */*_bsp/*
 eclipse_workspace/*
 */.*
-*/nios_2*
 */incremental_db/*
 *.cdf
 *.done
@@ -27,3 +26,8 @@ syn/*/*/*/*.txt
 **/software/**/create-this-app
 *.qip
 **/greybox*
+**/script/*
+*.flash
+**/nios_2/synthesis/*
+*.bsf
+*.html

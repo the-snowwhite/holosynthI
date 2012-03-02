@@ -1,3 +1,4 @@
+set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"
 #============================================================
 # Build by Terasic System Builder
 #============================================================
@@ -647,6 +648,14 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_WE_N
 set_location_assignment PIN_AE12 -to FL_WP_N
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_WP_N
 
+#=====================================================
+# EPCS
+#====================================================
+set_location_assignment PIN_E2 -to nCSO
+set_location_assignment PIN_P3 -to DCLK
+set_location_assignment PIN_N7 -to DATA0
+set_location_assignment PIN_F4 -to ASDO
+
 #============================================================
 # GPIO, GPIO connect to LTM - 4.3" LCD and Touch
 #============================================================
@@ -854,6 +863,14 @@ set_global_assignment -name SEARCH_PATH ../../../../rtl/verilog/common
 set_global_assignment -name SEARCH_PATH ../../../../rtl/verilog/common/midi
 set_global_assignment -name SEARCH_PATH ../../../../rtl/verilog/common/synth
 set_global_assignment -name SEARCH_PATH ../../../../rtl/verilog/common/display
+
+
+
+
+
+
+
+
 set_global_assignment -name QSYS_FILE nios_2.qsys
 set_global_assignment -name VERILOG_FILE VEEKsynth.v
 set_global_assignment -name SYSTEMVERILOG_FILE utils.sv
@@ -892,15 +909,14 @@ set_global_assignment -name SYSTEMVERILOG_FILE env_gen_indexed.sv
 set_global_assignment -name SYSTEMVERILOG_FILE constmap.sv
 set_global_assignment -name SYSTEMVERILOG_FILE synthesizer.sv
 set_global_assignment -name SYSTEMVERILOG_FILE st_reg_ram.sv
-
-
-
 set_global_assignment -name SYSTEMVERILOG_FILE TCON.sv
-
 set_global_assignment -name SIGNALTAP_FILE stp1.stp
-set_global_assignment -name CDF_FILE Holosynth_AS.cdf
-set_global_assignment -name CDF_FILE Holosynth_JTAG.cdf
-set_global_assignment -name CDF_FILE Holosynth.cdf
+set_global_assignment -name SAVE_DISK_SPACE OFF
+set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+set_global_assignment -name IGNORE_PARTITIONS ON
 
-
+set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name STRATIXIII_UPDATE_MODE REMOTE
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

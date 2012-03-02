@@ -49,7 +49,7 @@ assign touch_status_data[6] = edit_chr;
 //assign touch_status_data[7] = slide_val;
 assign touch_status_data[7] = sys_real_dat_r;
 assign touch_status_data[8] = x;
-assign touch_status_data[9] = y;
+assign touch_status_data[9] = N_sound_nr;
 
 reg write_nr_pressed = 1'b0;
 reg [7:0]hit_y, hit_x, rel_x, rel_y, t1_x,t2_x;
