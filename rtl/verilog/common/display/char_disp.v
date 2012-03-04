@@ -27,12 +27,16 @@ module char_disp
 	.q ( CharacterRAM_dout )
 	);
 */
+
+	reg[5:0]ra_x;
+	
 	disp_ram st_reg_ram_inst
 (
 	.q(CharacterRAM_dout) ,	// output  q_sig
 	.d(ram_Data) ,	
 	.write_address(ram_Adr) ,	// input  write_address_sig
-	.read_address({counterY[7:4],counterX[9:4]}) ,	// input  read_address_sig
+//	.read_address({counterY[7:4],(counterX[9:4]}) ,	// input  read_address_sig
+	.read_address({counterY[7:4],ra_x}) ,	// input  read_address_sig
 	.we(write_Ram) ,	// input  we_sig
 	.wclk(wclk), 	// input  clk_sig
 	.rclk(~clk) 	// output  clk_sig
@@ -51,6 +55,7 @@ module char_disp
 	reg [2:0]x_ind;
 	reg [7:0]char_byte;
 	always @(posedge clk)begin
+		ra_x  <= counterX[9:4]-1;
 		x_ind[2:0] <= 7 - counterX[3:1];
 	end
 	

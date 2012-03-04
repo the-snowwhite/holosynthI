@@ -37,18 +37,19 @@ module display(
 	wire 	[3:0]color;	
 
 
-	wire [9:0]color_R[16];	
-	wire [9:0]color_G[16];	
-	wire [9:0]color_B[16];	
+	wire [9:0]color_R[15:0];	
+	wire [9:0]color_G[15:0];	
+	wire [9:0]color_B[15:0];	
 	assign color_R[0] = 9'h000; assign color_G[0] = 9'h000; assign color_B[0] = 9'h000;  // Background	
 	assign color_R[1] = 9'h1f0; assign color_G[1] = 9'h1f0; assign color_B[1] = 9'h000;	 // Text Background	
-	assign color_R[2] = 9'h010; assign color_G[2] = 9'h020; assign color_B[2] = 9'h0f0;  // Black key	
-	assign color_R[3] = 9'h1f0; assign color_G[3] = 9'h1f0; assign color_B[3] = 9'h1f0;  // White Key
+	assign color_R[2] = 9'h100; assign color_G[2] = 9'h100; assign color_B[2] = 9'h100;	 // Text2 Background	
+	assign color_R[3] = 9'h1f0; assign color_G[3] = 9'h1f0; assign color_B[3] = 9'h1f0;  // White
 	assign color_R[4] = 9'h1f0; assign color_G[4] = 9'h1f0; assign color_B[4] = 9'h1f0;  // Cursor
 	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h0f0;  // Text		
 	assign color_R[6] = 9'h000; assign color_G[6] = 9'h010; assign color_B[6] = 9'h010;  // Text2		
 	assign color_R[7] = 9'h100; assign color_G[7] = 9'h130; assign color_B[7] = 9'h1f0;  // slider		
 	assign color_R[8] = 9'h1ff; assign color_G[8] = 9'h086; assign color_B[8] = 9'h006;  // marker		
+	assign color_R[9] = 9'h010; assign color_G[9] = 9'h020; assign color_B[9] = 9'h0f0;  // Black	
 	
 	assign VGA_R = color_R[color];
 	assign VGA_G = color_G[color];
@@ -554,7 +555,8 @@ module display(
 */
 	wire white;
 	wire black;
-	wire text;
+	wire textbackg;
+	wire textbackg2;
 	wire slider_act;
 
 	parameter org_x = 100;
@@ -592,18 +594,20 @@ module display(
 //	assign 	black	= ~w_key & key_ & inLcdDisplay;
 	assign	white = drag_space  & inLcdDisplay;
 	assign 	black	= 1'b0;//~w_key & key_ & inLcdDisplay;
-	assign	text 	= (intextarea | intextarea2) & inLcdDisplay;
+	assign	textbackg 	= intextarea  & inLcdDisplay;
+	assign	textbackg2 	= intextarea2 & inLcdDisplay;
 	assign	slider_act 	= slider & inLcdDisplay;
 	assign color=(     // color of element text = 5, curser = 4, white key=3,black key=2,key=1,background=0;
+		( black ) ? 9 :(
 		( marker ) ? 8 :(
 		( slider_act ) ? 7 :(
 		( Char_ACT2 ) ? 6 :(
 		( Char_ACT ) ? 5 :(
 		( cur )? 4 :(
 		( white )? 3 :(
-		( black )? 2:(
-		( text )?1:0
-		)))))))
+		( textbackg2 )? 2:(
+		( textbackg )?1:0
+		))))))))
 	);
 
 endmodule

@@ -455,8 +455,16 @@ char s[p2_size] = {0};
             		IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x01);// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk
             		s[i] = IORD_ALTERA_AVALON_PIO_DATA(N_SYNTH_OUT_DATA_BASE);
             	}
-            	sprintf(dispbuf[1],"%3d %3d %3d %3d %3d %3d %3d %3d",s[8],s[12],s[9],
-      				s[13],s[10],s[14],s[11],s[15]);
+//            	for(i=0;i<4;i++){
+//                	sprintf(dispbuf[i+1],"%3d %3d %3d %3d %3d %3d %3d %3d",s[(i>>4)+8],s[(i>>4)+12],
+//                			s[(i>>4)+9],s[(i>>4)+13],s[(i>>4)+10],s[(i>>4)+14],s[(i>>4)+11],s[15]);
+//            	}
+            	inx = 0;
+            	for(i=0;i<=4;i++){
+                	sprintf(dispbuf[(i+1)],"%3d %3d %3d %3d %3d %3d %3d %3d",s[inx+8],s[inx+12],
+               			s[inx+9],s[inx+13],s[inx+10],s[inx+14],s[inx+11],s[inx+15]);
+                	inx = i<<4;
+            	}
             	inx = 0;
             	for(i=0; i < 16; i++ ){
             		for(j=0;j<48;j++){
