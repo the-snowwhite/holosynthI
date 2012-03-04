@@ -264,30 +264,6 @@
          type = "long";
       }
    }
-   element N_adr_dat_rdy.s1
-   {
-      datum baseAddress
-      {
-         value = "151000112";
-         type = "long";
-      }
-   }
-   element N_synth_in_data.s1
-   {
-      datum baseAddress
-      {
-         value = "151000160";
-         type = "long";
-      }
-   }
-   element remote_update_cycloneiii_0.s1
-   {
-      datum baseAddress
-      {
-         value = "0";
-         type = "long";
-      }
-   }
    element N_synth_sound_num.s1
    {
       datum baseAddress
@@ -296,24 +272,11 @@
          type = "long";
       }
    }
-   element timer_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "151000064";
-         type = "long";
-      }
-   }
-   element N_adr.s1
+   element N_adr_dat_rdy.s1
    {
       datum baseAddress
       {
-         value = "151000192";
+         value = "151000112";
          type = "long";
       }
    }
@@ -322,14 +285,6 @@
       datum baseAddress
       {
          value = "151000176";
-         type = "long";
-      }
-   }
-   element N_irq.s1
-   {
-      datum baseAddress
-      {
-         value = "151000128";
          type = "long";
       }
    }
@@ -346,11 +301,56 @@
          type = "long";
       }
    }
+   element remote_update_cycloneiii_0.s1
+   {
+      datum baseAddress
+      {
+         value = "0";
+         type = "long";
+      }
+   }
+   element N_adr.s1
+   {
+      datum baseAddress
+      {
+         value = "151000192";
+         type = "long";
+      }
+   }
    element N_synth_out_data.s1
    {
       datum baseAddress
       {
          value = "151000144";
+         type = "long";
+      }
+   }
+   element N_irq.s1
+   {
+      datum baseAddress
+      {
+         value = "151000128";
+         type = "long";
+      }
+   }
+   element timer_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "151000064";
+         type = "long";
+      }
+   }
+   element N_synth_in_data.s1
+   {
+      datum baseAddress
+      {
+         value = "151000160";
          type = "long";
       }
    }
@@ -443,7 +443,7 @@
  <parameter name="projectName" value="" />
  <parameter name="sopcBorderPoints" value="false" />
  <parameter name="systemHash" value="1" />
- <parameter name="timeStamp" value="1330730354425" />
+ <parameter name="timeStamp" value="1330805319498" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
  <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
@@ -935,7 +935,7 @@
   <parameter name="resetValue" value="0" />
   <parameter name="simDoTestBenchWiring" value="false" />
   <parameter name="simDrivenValue" value="0" />
-  <parameter name="width" value="2" />
+  <parameter name="width" value="3" />
  </module>
  <module kind="altera_avalon_pio" version="11.1" enabled="1" name="N_adr">
   <parameter name="bitClearingEdgeCapReg" value="false" />

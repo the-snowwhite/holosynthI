@@ -28,6 +28,7 @@ parameter num_mul = 22;
 	parameter LEVEL3 = 9'h040;	//9'b001000000;
 	parameter RATE4  = 9'h080;	//9'b010000000;
 	parameter LEVEL4 = 9'h100;	//9'b100000000;
+	parameter mainvol_env_nr = 1;
 // ------ Internal regs -------//
 	wire [8:0]st_m;
 	reg [8:0]st;
@@ -110,7 +111,7 @@ volstmram	volstmram_inst (
 						oldlevel <= level[36:29]; 	
 						next_numer <= (l[0]-oldlevel_m)<<<num_mul;
 						next_denom <= r[0]*r[0];
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 						st <= RATE1;					
 					end
 					else begin
@@ -118,7 +119,7 @@ volstmram	volstmram_inst (
 						level <= 36'h0000000; 
 						oldlevel <= level_m[36:29]; 
 						st <= IDLE;
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b1;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b1;
 					end
 				end		
 			RATE1:	
@@ -127,7 +128,7 @@ volstmram	volstmram_inst (
 						distance <= r[3]*r[3]<<rate_mul;
 						level <= level_m; 
 						oldlevel <= level_m[36:29]; 
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 						st <= RATE4;
 					end	
 					else begin 
@@ -138,14 +139,14 @@ volstmram	volstmram_inst (
 							next_denom <= r[0]*r[0];
 							level <= level_m + quotient;
 							oldlevel <= oldlevel_m; 
-							if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+							if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 							st <= RATE1;
 						end
 						else begin
 							distance <= 0;
 							level <= (l[0]<<<29);
 							oldlevel <= level_m[36:29]; 
-							if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+							if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 							st <= LEVEL1;
 						end
 					end
@@ -158,7 +159,7 @@ volstmram	volstmram_inst (
 						oldlevel <= level_m[36:29]; 
 						next_numer <= (l[3]-oldlevel_m)<<<num_mul;
 						next_denom <= r[3]*r[3];
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 						st <= RATE4;
 					end
 					else begin
@@ -167,7 +168,7 @@ volstmram	volstmram_inst (
 						oldlevel <= level_m[36:29]; 
 						next_numer <= (l[1]-oldlevel_m)<<<num_mul;
 						next_denom <= r[1]*r[1];
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 						st <= RATE2;
 					end
 				end	
@@ -179,7 +180,7 @@ volstmram	volstmram_inst (
 						oldlevel <= level_m[36:29]; 
 						next_numer <= (l[3]-oldlevel_m)<<<num_mul;
 						next_denom <= r[3]*r[3];
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 						st <= RATE4;
 					end 
 					else begin 
@@ -190,14 +191,14 @@ volstmram	volstmram_inst (
 							next_denom <= r[1]*r[1];
 							level <= level_m + quotient;
 							oldlevel <= oldlevel_m; 
-							if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+							if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 							st <= RATE2;
 						end
 						else begin
 							distance <= 0;
 							level <= l[1]<<<29;
 							oldlevel <= level_m[36:29]; 
-							if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+							if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 							st <= LEVEL2;		
 						end
 					end
@@ -210,7 +211,7 @@ volstmram	volstmram_inst (
 						oldlevel <= level_m[36:29]; 
 						next_numer <= (l[3]-oldlevel_m)<<<num_mul;
 						next_denom <= r[3]*r[3];
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 						st <= RATE4;
 					end					
 					else begin
@@ -219,7 +220,7 @@ volstmram	volstmram_inst (
 						oldlevel <= level_m[36:29]; 
 						next_numer <= (l[2]-oldlevel_m)<<<num_mul;
 						next_denom <= r[2]*r[2];
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 						st <= RATE3;
 					end
 				end	
@@ -231,7 +232,7 @@ volstmram	volstmram_inst (
 						oldlevel <= level_m[36:29]; 
 						next_numer <= (l[3]-oldlevel_m)<<<num_mul;
 						next_denom <= r[3]*r[3];
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 						st <=RATE4;
 					end	
 					else begin 
@@ -242,14 +243,14 @@ volstmram	volstmram_inst (
 							next_numer <= (l[2]-oldlevel_m)<<<num_mul;
 							next_denom <= r[2]*r[2];
 							level <= level_m + quotient;
-							if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+							if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 							st <= RATE3;
 						end
 						else begin
 							distance <= 0;
 							level <= l[2]<<<29;
 							oldlevel <= level_m[36:29]; 
-							if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+							if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 							st <= LEVEL3;		
 						end
 					end
@@ -262,14 +263,14 @@ volstmram	volstmram_inst (
 						oldlevel <= level_m[36:29]; 
 						next_numer <= (l[3]-oldlevel_m)<<<num_mul;
 						next_denom <= r[3]*r[3];
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 						st <= RATE4;
 					end
 					else begin
 						distance <= 0;
 						level <= l[2]<<<29;
 						oldlevel <= level_m[36:29]; 
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 						st <= LEVEL3;
 					end		
 				end		
@@ -281,7 +282,7 @@ volstmram	volstmram_inst (
 						oldlevel <= level_m[36:29]; 
 						next_numer <= (l[0]-oldlevel_m)<<<num_mul;
 						next_denom <= r[0]*r[0];
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 						st <= RATE1;
 					end
 					else begin 
@@ -291,15 +292,15 @@ volstmram	volstmram_inst (
 							next_denom <= r[3]*r[3];
 							level <= level_m + quotient;
 							oldlevel <= oldlevel_m; 
-							if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+							if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 							st <= RATE4;
 						end
 						else begin
 							distance <= 0;
 							level <= l[3]<<<29;
-							if(cur_env == 0) voice_free[cur_voice] <= 1'b1;
+							if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b1;
 							oldlevel <= level_m[36:29]; 
-							if(cur_env == 0) voice_free[cur_voice] <= 1'b1;
+							if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b1;
 							st <= LEVEL4;	
 						end
 					end
@@ -312,7 +313,7 @@ volstmram	volstmram_inst (
 						oldlevel <= 36'h0000000; 
 						next_numer <= 36'h0000000;
 						next_denom <= 8'h01;
-						if(cur_env == 0) voice_free[cur_voice] <= 1'b1;
+						if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b1;
 						st <= IDLE;
 					end	
 					else begin
@@ -322,7 +323,7 @@ volstmram	volstmram_inst (
 							oldlevel <= level_m[36:29]; 
 							next_numer <= (l[0]-oldlevel_m)<<<num_mul;
 							next_denom <= r[0]*r[0];
-							if(cur_env == 0) voice_free[cur_voice] <= 1'b0;
+							if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
 							st <= RATE1;
 						end	
 						else begin
@@ -331,7 +332,7 @@ volstmram	volstmram_inst (
 							oldlevel <= level_m[36:29]; 
 							next_numer <= 36'h0000000;
 							next_denom <= 8'h01;
-							if(cur_env == 0) voice_free[cur_voice] <= 1'b1;
+							if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b1;
 							st <= LEVEL4;
 						end
 					end	
