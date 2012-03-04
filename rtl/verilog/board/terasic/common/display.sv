@@ -590,9 +590,9 @@ module display(
 //	wire key_		= blank_bar |  white_bar;
 //	assign	white = (drag_space | w_key) & inLcdDisplay;
 //	assign 	black	= ~w_key & key_ & inLcdDisplay;
-	assign	white = (drag_space | intextarea2) & inLcdDisplay;
+	assign	white = drag_space  & inLcdDisplay;
 	assign 	black	= 1'b0;//~w_key & key_ & inLcdDisplay;
-	assign	text 	= intextarea & inLcdDisplay;
+	assign	text 	= (intextarea | intextarea2) & inLcdDisplay;
 	assign	slider_act 	= slider & inLcdDisplay;
 	assign color=(     // color of element text = 5, curser = 4, white key=3,black key=2,key=1,background=0;
 		( marker ) ? 8 :(

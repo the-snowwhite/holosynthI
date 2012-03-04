@@ -40,7 +40,6 @@ parameter E_WIDTH = utils::clogb2(V_ENVS);
 ////////////////   	Main state machine		////////////////	
 //-----		Internals		-----//
 	reg	[V_WIDTH-1:0]lvl_mul_index;
-	reg	[V_WIDTH-1:0]mainvol_index;
 	reg	[V_WIDTH-1:0]mod_index;
 	reg	[V_WIDTH+E_WIDTH:0]xxxx;
 
@@ -50,10 +49,10 @@ parameter E_WIDTH = utils::clogb2(V_ENVS);
 	assign e_voice_sel = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
 	assign e_env_sel = xxxx[E_WIDTH-1:0]; // 2 env's 
 
+	wire signed	[24:0] rsound_sum_w = r_sum(osc_sound_data_r_sum);
 	wire signed [24:0]rsound_sum = ((rsound_sum_w) * m_vol);// m_vol
-	wire signed [32:0]rsound_w_sum = ((rsound_sum_w) * m_vol);// m_vol
-	wire signed[24:0] rsound_sum_w;
 	wire signed [23:0]osc_sound_data[V_OSC];	
+	wire signed [31:0]osc_sound_data_w[V_OSC];	
 	wire signed [23:0]osc_mod_data[V_OSC];
 	wire signed [23:0]osc_feedback_data[V_OSC];
 	wire signed [11:0]m_in_all[V_OSC];
@@ -79,6 +78,7 @@ parameter E_WIDTH = utils::clogb2(V_ENVS);
 	generate genvar aa5;
 	for(aa5=0;aa5<V_OSC;aa5++)begin : sound_lvl_mod
 		assign osc_sound_data[aa5] = (osc_sine_mul_data[aa5] * (osc_lvl[aa5]));// osc_lvl[aa5]
+		assign osc_sound_data_w[aa5] = (osc_sine_mul_data[aa5] * (osc_lvl[aa5]) *  (level_mul_r[(lvl_mul_index)][1]));// osc_lvl[aa5]
 		assign osc_mod_data[aa5] = (osc_sine_mul_data[aa5] * (osc_mod[aa5]));// osc_mod[aa5]
 		assign osc_feedback_data[aa5] = ((sine_lut_out[aa5]>>>1) * (osc_feedb[aa5]));// osc_feedb[aa5]
 	end
@@ -132,7 +132,7 @@ parameter E_WIDTH = utils::clogb2(V_ENVS);
 		return a.sum;
 	endfunction
 
-	assign rsound_sum_w = r_sum(osc_sound_data_r_sum);
+//	assign rsound_sum_w = r_sum(osc_sound_data_r_sum);
 	assign matrix_data = matrix_data_r;
 
 ///////////////////////// 	Clock driven 					///////////////////////////
@@ -167,7 +167,7 @@ parameter E_WIDTH = utils::clogb2(V_ENVS);
 		if(!iRST_N ) begin osc_voice_index<=0;lvl_mul_index<=0;mod_index<=0;end 
 		else begin
 			if( xxxx_max)
-				begin osc_voice_index<=0;lvl_mul_index<=0;mod_index<=0;mainvol_index<=0;end // lvl_mul_index<=VOICES+VOICES-4;xsel<=VOICES+VOICES-6;
+				begin osc_voice_index<=0;lvl_mul_index<=0;mod_index<=0;end // lvl_mul_index<=VOICES+VOICES-4;xsel<=VOICES+VOICES-6;
 			else begin
 				if(xxxx < VOICES) sh_reg <= (sh_reg  << 1)+ 1; else sh_reg <= sh_reg << 1;
 				if(sh_reg[1])begin osc_voice_index<=osc_voice_index+1;end // osc_voice_index --> osc index
@@ -180,7 +180,10 @@ parameter E_WIDTH = utils::clogb2(V_ENVS);
 					for(o1=0;o1<V_OSC;o1++)begin
 						osc_mod_data_r[o1] <= osc_mod_data[o1][23:13];
 						osc_feedb_data_r[o1] <= osc_feedback_data[o1][23:13];
-						osc_sound_data_r_sum[o1] <= osc_sound_data_r_sum[o1] + (osc_sound_data[o1]>>>7);
+						if(switch[0])
+							osc_sound_data_r_sum[o1] <= osc_sound_data_r_sum[o1] + (osc_sound_data_w[o1]>>>14);
+						else
+							osc_sound_data_r_sum[o1] <= osc_sound_data_r_sum[o1] + (osc_sound_data[o1]>>>7);
 					end lvl_mul_index <= lvl_mul_index+1; 	// <-- sine lut out * levelmul[voice sel]
 					// + osc_sound + feedb_data + osc_mod_data 	// all oscs at once
 				end
@@ -198,14 +201,8 @@ parameter E_WIDTH = utils::clogb2(V_ENVS);
 					end
 					mod_index <= mod_index+1; // modulation <-- osc_mod data_r + osc_feedb_data_r 
 				end
-				if(sh_reg[5+VOICES] && !sh_reg[6+VOICES])begin mainvol_index <= 0;end
 				if(sh_reg[6+VOICES] && !sh_reg[7+VOICES])begin
-/* output-->*/	if(switch[0])begin 
-						if(switch[1]) rsound_o <= (rsound_w_sum *  level_mul_r[(mainvol_index)][1]) >>> 16;
-						else rsound_o <= (rsound_w_sum *  level_mul_r[(mainvol_index)][1]) >>> 17;
-					end else
-						if(switch[1])rsound_o <= rsound_sum >>> 8;else rsound_o <= rsound_sum >>> 9; 
-					mainvol_index <= mainvol_index + 1;
+/* output-->*/		if(switch[1])rsound_o <= rsound_sum >>> 8;else rsound_o <= rsound_sum >>> 9; 
 				end
 			end
 		end
