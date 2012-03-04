@@ -10,7 +10,7 @@ module touch(
 	input [7:0]disp_data[94],
 	input sys_real,
 	input [7:0]sys_real_dat,
-	input  N_adr_9,				// end transfer sig
+	input  N_adr_9,				// disp write clk
 	input 		  		prg_ch_cmd, 
 	input reg  [7:0]	prg_ch_data, 
 

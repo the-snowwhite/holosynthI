@@ -1,5 +1,6 @@
 module display(
 	input VGA_CLK,
+	input	sys_clk,
 	input [7:0]scan_code1,
 	input [7:0]scan_code2,
 	input [7:0]scan_code3,
@@ -19,6 +20,9 @@ module display(
 	output [9:0] VGA_G,
 	output [9:0] VGA_B,
 	//	output [3:0]color,
+	input [9:0] N_adr,				// data addr.
+	input [2:0]	N_adr_data_rdy,	// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk; bit 2 >= to char_disp2 mem 
+	input [7:0] N_synth_in_data,		// data byte from nios to synth
 	input [3:0]chr_3,
 	input [3:0]lne,
 	input [3:0]col,
@@ -42,8 +46,9 @@ module display(
 	assign color_R[3] = 9'h1f0; assign color_G[3] = 9'h1f0; assign color_B[3] = 9'h1f0;  // White Key
 	assign color_R[4] = 9'h1f0; assign color_G[4] = 9'h1f0; assign color_B[4] = 9'h1f0;  // Cursor
 	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h0f0;  // Text		
-	assign color_R[6] = 9'h100; assign color_G[6] = 9'h130; assign color_B[6] = 9'h1f0;  // slider		
-	assign color_R[7] = 9'h1ff; assign color_G[7] = 9'h086; assign color_B[7] = 9'h006;  // marker		
+	assign color_R[6] = 9'h000; assign color_G[6] = 9'h010; assign color_B[6] = 9'h010;  // Text2		
+	assign color_R[7] = 9'h100; assign color_G[7] = 9'h130; assign color_B[7] = 9'h1f0;  // slider		
+	assign color_R[8] = 9'h1ff; assign color_G[8] = 9'h086; assign color_B[8] = 9'h006;  // marker		
 	
 	assign VGA_R = color_R[color];
 	assign VGA_G = color_G[color];
@@ -82,19 +87,38 @@ module display(
 	wire Char_ACT;
 	wire intextarea;
 	
+	wire Char_ACT2;
+	wire intextarea2;
+	
 	char_disp char_gen(
-// Input Ports
+		// Input Ports
 		.counterX ( CounterX ),
 		.counterY (CounterY ),
 		.ram_Adr (char_adr),
 		.ram_Data (char_data),
 		.clk	(VGA_CLK ),
+		.wclk	( sys_clk ),
 		.write_Ram(w_char),
-//	input signed [<msb>:<lsb>] <port_name>,
-// Output Ports
+		//	input signed [<msb>:<lsb>] <port_name>,
+		// Output Ports
 		.char_bit(Char_ACT),
 		.intextarea(intextarea)
-	);						
+		);						
+							
+	char_disp char_gen2(
+		// Input Ports
+		.counterX ( CounterX ),
+		.counterY (((CounterY<=320) ? 0 : (CounterY - 320))),
+		.ram_Adr (N_adr),
+		.ram_Data (N_synth_in_data),
+		.clk	( VGA_CLK ),
+		.wclk	( N_adr_data_rdy[2] ),
+		.write_Ram(w_char),
+		//	input signed [<msb>:<lsb>] <port_name>,
+		// Output Ports
+		.char_bit(Char_ACT2),
+		.intextarea(intextarea2)
+		);						
 							
 	wire [9:0]char_adr;
 	wire [7:0] char_data;
@@ -150,7 +174,7 @@ module display(
 	reg [7:0]itostr;
 	reg tgle;	
 		
-	always @(posedge VGA_CLK)begin
+	always @(posedge sys_clk)begin
 		if (tgle)begin chr_indx <= chr_indx+1; end
 		tgle <= ~tgle; 
 		char_adr <= {line,chr};
@@ -249,12 +273,11 @@ module display(
 				char_data <= var_str;
 			end
 		end			
-		else begin
+		else 
 			char_data <= " ";
-		end
 	end
 /////////Channel-1 Trigger////////
-	wire L_5_tr=(scan_code1==8'h37)?1:0;//-5
+/*	wire L_5_tr=(scan_code1==8'h37)?1:0;//-5
 	wire L_6_tr=(scan_code1==8'h39)?1:0;//-6		
 	wire L_7_tr=(scan_code1==8'h3b)?1:0;//-7		
 	wire M_1_tr=(scan_code1==8'h3c)?1:0;//1		
@@ -528,14 +551,14 @@ module display(
 		.line_y(blank_y),
 		.line_x(xdeta)
 	);
-
+*/
 	wire white;
 	wire black;
 	wire text;
 	wire slider_act;
 
 	parameter org_x = 100;
-	parameter org_y = 300;
+	parameter org_y = 283;
 	parameter line_x = 600;
 	parameter line_y = 10;
 	parameter s_line_x = 20;
@@ -563,21 +586,24 @@ module display(
 	wire marker = (CounterX >= (col * 4*16) && CounterX < ((col+1) *4*16)
 					&& (CounterY >= row *16) && (CounterY <= (row +1)*16)) ? 1:0;
 
-	wire w_key 		=~blank_bar &  white_bar;
-	wire key_		= blank_bar |  white_bar;
-	assign	white = (drag_space | w_key) & inLcdDisplay;
-	assign 	black	= ~w_key & key_ & inLcdDisplay;
+//	wire w_key 		=~blank_bar &  white_bar;
+//	wire key_		= blank_bar |  white_bar;
+//	assign	white = (drag_space | w_key) & inLcdDisplay;
+//	assign 	black	= ~w_key & key_ & inLcdDisplay;
+	assign	white = (drag_space | intextarea2) & inLcdDisplay;
+	assign 	black	= 1'b0;//~w_key & key_ & inLcdDisplay;
 	assign	text 	= intextarea & inLcdDisplay;
 	assign	slider_act 	= slider & inLcdDisplay;
 	assign color=(     // color of element text = 5, curser = 4, white key=3,black key=2,key=1,background=0;
-		( marker ) ? 7 :(
-		( slider_act ) ? 6 :(
+		( marker ) ? 8 :(
+		( slider_act ) ? 7 :(
+		( Char_ACT2 ) ? 6 :(
 		( Char_ACT ) ? 5 :(
 		( cur )? 4 :(
 		( white )? 3 :(
 		( black )? 2:(
 		( text )?1:0
-		))))))
+		)))))))
 	);
 
 endmodule
