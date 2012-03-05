@@ -30,8 +30,9 @@ module display(
 	input [7:0] slide_val
 );				
 
-	parameter key_y_offset = 370;
+//	parameter key_y_offset = 370;
 	assign  SYNC=1;	
+	parameter text2_y_offset = 266;
 
 ///////////   Color Settings //////	
 	wire 	[3:0]color;	
@@ -40,18 +41,38 @@ module display(
 	wire [9:0]color_R[15:0];	
 	wire [9:0]color_G[15:0];	
 	wire [9:0]color_B[15:0];	
-	assign color_R[0] = 9'h000; assign color_G[0] = 9'h000; assign color_B[0] = 9'h000;  // Background	
-//	assign color_R[1] = 9'h1f0; assign color_G[1] = 9'h1f0; assign color_B[1] = 9'h000;	 // Text Background (yellow)	
-	assign color_R[1] = 9'h010; assign color_G[1] = 9'h120; assign color_B[1] = 9'h100;	 // Text Background	
-	assign color_R[2] = 9'h010; assign color_G[2] = 9'h0f0; assign color_B[2] = 9'h0f0;	 // Text2 Background	
-	assign color_R[3] = 9'h1f0; assign color_G[3] = 9'h1f0; assign color_B[3] = 9'h1f0;  // White
-	assign color_R[4] = 9'h1f0; assign color_G[4] = 9'h1f0; assign color_B[4] = 9'h1f0;  // Cursor
-	assign color_R[5] = 9'h1ff; assign color_G[5] = 9'h086; assign color_B[5] = 9'h006;  // marker		
-//	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h170;  // Text (blue)	
-	assign color_R[6] = 9'h000; assign color_G[6] = 9'h000; assign color_B[6] = 9'h000;  // Text		
-	assign color_R[7] = 9'h000; assign color_G[7] = 9'h010; assign color_B[7] = 9'h010;  // Text2		
-	assign color_R[8] = 9'h100; assign color_G[8] = 9'h130; assign color_B[8] = 9'h1f0;  // slider		
-	assign color_R[9] = 9'h010; assign color_G[9] = 9'h020; assign color_B[9] = 9'h0f0;  // Black	
+	
+	`ifdef _LTM_Graphics	         
+		assign color_R[0] = 9'h000; assign color_G[0] = 9'h000; assign color_B[0] = 9'h000;  // Background	
+		assign color_R[1] = 9'h1f0; assign color_G[1] = 9'h1f0; assign color_B[1] = 9'h050;	 // Text Background (yellow2)	
+//		assign color_R[1] = 9'h010; assign color_G[1] = 9'h120; assign color_B[1] = 9'h100;	 // Text Background	(bluish)
+		assign color_R[2] = 9'h020; assign color_G[2] = 9'h140; assign color_B[2] = 9'h130;	 // Text2 Background	
+		assign color_R[3] = 9'h1f0; assign color_G[3] = 9'h1f0; assign color_B[3] = 9'h1f0;  // White
+		assign color_R[4] = 9'h1f0; assign color_G[4] = 9'h1f0; assign color_B[4] = 9'h1f0;  // Cursor
+		assign color_R[5] = 9'h1ff; assign color_G[5] = 9'h086; assign color_B[5] = 9'h006;  // marker		
+		//	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h170;  // Text (blue)	
+		assign color_R[6] = 9'h000; assign color_G[6] = 9'h000; assign color_B[6] = 9'h000;  // Text		
+		assign color_R[7] = 9'h000; assign color_G[7] = 9'h010; assign color_B[7] = 9'h010;  // Text2		
+		assign color_R[8] = 9'h100; assign color_G[8] = 9'h130; assign color_B[8] = 9'h1f0;  // slider		
+		assign color_R[9] = 9'h010; assign color_G[9] = 9'h020; assign color_B[9] = 9'h0f0;  // Black	
+	`endif
+	`ifdef _VEEK_Graphics	         
+		assign color_R[0] = 9'h000; assign color_G[0] = 9'h000; assign color_B[0] = 9'h000;  // Background	
+//		assign color_R[1] = 9'h1f0; assign color_G[1] = 9'h1f0; assign color_B[1] = 9'h000;	 // Text Background (yellow)	
+		assign color_R[1] = 9'h010; assign color_G[1] = 9'h120; assign color_B[1] = 9'h100;	 // Text Background	(bluish2)
+		assign color_R[2] = 9'h010; assign color_G[2] = 9'h0f0; assign color_B[2] = 9'h0f0;	 // Text2 Background	
+		assign color_R[3] = 9'h1f0; assign color_G[3] = 9'h1f0; assign color_B[3] = 9'h1f0;  // White
+		assign color_R[4] = 9'h1f0; assign color_G[4] = 9'h1f0; assign color_B[4] = 9'h1f0;  // Cursor
+		assign color_R[5] = 9'h1ff; assign color_G[5] = 9'h086; assign color_B[5] = 9'h006;  // marker		
+		//	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h170;  // Text (blue)	
+		assign color_R[6] = 9'h000; assign color_G[6] = 9'h000; assign color_B[6] = 9'h000;  // Text		
+		assign color_R[7] = 9'h000; assign color_G[7] = 9'h010; assign color_B[7] = 9'h010;  // Text2		
+		assign color_R[8] = 9'h100; assign color_G[8] = 9'h130; assign color_B[8] = 9'h1f0;  // slider		
+		assign color_R[9] = 9'h010; assign color_G[9] = 9'h020; assign color_B[9] = 9'h0f0;  // Black	
+	`endif
+	
+	
+	
 	
 	assign VGA_R = color_R[color];
 	assign VGA_G = color_G[color];
@@ -111,7 +132,7 @@ module display(
 	char_disp char_gen2(
 		// Input Ports
 		.counterX ( CounterX ),
-		.counterY (((CounterY<=320) ? 0 : (CounterY - 320))),
+		.counterY (((CounterY<=text2_y_offset) ? 0 : (CounterY - text2_y_offset))),
 		.ram_Adr (N_adr),
 		.ram_Data (N_synth_in_data),
 		.clk	( VGA_CLK ),
@@ -562,7 +583,8 @@ module display(
 	wire slider_act;
 
 	parameter org_x = 100;
-	parameter org_y = 283;
+//	parameter org_y = 283;
+	parameter org_y = 256;
 	parameter line_x = 600;
 	parameter line_y = 10;
 	parameter s_line_x = 20;
