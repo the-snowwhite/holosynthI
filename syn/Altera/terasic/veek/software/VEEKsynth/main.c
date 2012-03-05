@@ -359,28 +359,30 @@ int SaveDataOnSD( char *file_name )
 int main()
 {
 char dispbuf[16][64] = {
-	" R1  L1  R2  L2  R3  L3  R4  L4  ", //synth_data[0]
-	"                                 ",
-	"                                 ",
-	"                                 ",
-	"                                 ",
-	"                                 ",
-	"                                 ",
-	"                                 ",
+	"  R1  L1  R2  L2  R3  L3  R4  L4                ",
+	"                                                ",
+	"                                                ",
+	"                                                ",
+	"                                                ",
+	"                                                ",
+	" - Modulation -- -- Feedback --                 ",
+	"  M1  M2  M3  M4 Fb1 Fb2 Fb3 Fb4                ",
 			// 1 -- b001
-	"1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16", //synth_data[8]
-	"                                 ",
-	"                                 ",
-	"                                 ",
-	"                                 ",
-	"                                 ",
-	"                                 ",
-	"                                 "
+	"                                                ",
+	"                                                ",
+	"                                                ",
+	"                                                ",
+	"                                                ",
+	" ** ++     Holosynth      ++ ***                ",
+	" ++     By Michael Brown     +++                ",
+	" **  @Holotronic 2010 - 2012 ***                "
 	};
 char s[p2_size] = {0};
 	int ret_code;
     int volumes_mounted;
     int i,j,inx;
+    int mi1 = (4*16*2);
+
 //	char string[128];
 	app_list = malloc( sizeof( app_list_struct ));
 
@@ -397,20 +399,6 @@ char s[p2_size] = {0};
 		printf( "Error: Could not find any Sound Files on SD Card\nInsert a properly loaded SD Card then reset the board." );
         return -1;
 	}
-/*    ////set spi clock divider coeff.
-    sd_set_clock_to_max( 80000000 );
-    printf("sleep 1000\n");
-    usleep (1000);
-    printf("mounting\n");
-    ////mount fat file system.
-    volumes_mounted = sd_fat_mount_all();
-
-    if( volumes_mounted <= 0 )
-    {
-        printf("Not mounted \n\r");
-    	return -1;
-    }
-*/
    sd_set_clock_to_max( 80000000 );
     printf("sleep 1000\n");
     usleep (1000);
@@ -460,17 +448,20 @@ char s[p2_size] = {0};
 //                			s[(i>>4)+9],s[(i>>4)+13],s[(i>>4)+10],s[(i>>4)+14],s[(i>>4)+11],s[15]);
 //            	}
             	inx = 0;
-            	for(i=0;i<=4;i++){
-                	sprintf(dispbuf[(i+1)],"%3d %3d %3d %3d %3d %3d %3d %3d",s[inx+8],s[inx+12],
+            	for(i=1;i<=4;i++){
+                	sprintf(dispbuf[(i)]," %3d %3d %3d %3d %3d %3d %3d %3d",s[inx+8],s[inx+12],
                			s[inx+9],s[inx+13],s[inx+10],s[inx+14],s[inx+11],s[inx+15]);
+                		sprintf(dispbuf[(i+7)]," %3d %3d %3d %3d %3d %3d %3d %3d ",
+                				s[inx+(mi1)],s[inx+(mi1+1)],s[inx+(mi1+2)],s[inx+(mi1+3)],
+                				s[inx+(mi1+8)],s[inx+(mi1+9)],s[inx+(mi1+10)],s[inx+(mi1+11)]);
                 	inx = i<<4;
             	}
             	inx = 0;
             	for(i=0; i < 16; i++ ){
             		for(j=0;j<48;j++){
             			IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x0);
-            			IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, (inx++));
             			IOWR_ALTERA_AVALON_PIO_DATA(N_SYNTH_IN_DATA_BASE, dispbuf[i][j]);
+            			IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, (inx++));
             			IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x4);
             		}
             		inx = inx + 16;
