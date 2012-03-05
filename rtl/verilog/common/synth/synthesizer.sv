@@ -225,6 +225,7 @@ midi_decoder #(.VOICES(VOICES),.V_WIDTH(V_WIDTH)) midi_decoder_inst(
 	.midi_bytes_in	(midi_bytes),		// data byte
 	.databyte_in	(databyte),		// data byte
 	.voice_free_	( voice_free ),		// envelope gen finished
+	.midi_ch		(com_buf[2][0][3:0]),
 // outputs   
 	.key_on		( key_on  ),		// key trigers
 	.key_val	( key_val ),		// key midi number

@@ -291,7 +291,7 @@ int LoadDataFromSD( char *file_name )
 						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_BASE, i);
 						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x00);
 						IOWR_ALTERA_AVALON_PIO_DATA(N_SYNTH_IN_DATA_BASE, tmpBuf[i]);
-						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x03);// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk
+						IOWR_ALTERA_AVALON_PIO_DATA(N_ADR_DAT_RDY_BASE, 0x02);// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk
 //						printf("data %d %s = %d \n",i,midi_buf2[i],tmpBuf[i]);
 					}
 					for(i=0; i < p2_size; i++ ){

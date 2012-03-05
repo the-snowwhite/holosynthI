@@ -28,7 +28,7 @@ module touch(
 	output reg[7:0]N_sound_nr
 );
 
-	parameter x_offset = 1;
+	parameter x_offset = 4;
 
 `ifdef _LTM_Graphics	         
 	wire[7:0] x = (x == 0) ? 8'hff : x_in - x_offset;
