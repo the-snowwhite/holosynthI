@@ -182,13 +182,13 @@ wire	CLOCK_25;
 // Sound clk gen //
 
 // TIME & Display CLOCK Generater //
-
+/*
 `ifdef _LTM_Graphics	         
 	assign VGA_CLK  = CLOCK_25 ;
 `endif
 `ifdef _VEEK_Graphics	         
-	assign VGA_CLK  = HC_LCD_CLK ;
-`endif
+*/	assign VGA_CLK  = HC_LCD_CLK ;/*
+`endif*/
 
 
 reg    [31:0]VGA_CLK_o;
