@@ -41,14 +41,16 @@ module display(
 	wire [9:0]color_G[15:0];	
 	wire [9:0]color_B[15:0];	
 	assign color_R[0] = 9'h000; assign color_G[0] = 9'h000; assign color_B[0] = 9'h000;  // Background	
-	assign color_R[1] = 9'h1f0; assign color_G[1] = 9'h1f0; assign color_B[1] = 9'h000;	 // Text Background	
-	assign color_R[2] = 9'h100; assign color_G[2] = 9'h100; assign color_B[2] = 9'h100;	 // Text2 Background	
+//	assign color_R[1] = 9'h1f0; assign color_G[1] = 9'h1f0; assign color_B[1] = 9'h000;	 // Text Background (yellow)	
+	assign color_R[1] = 9'h010; assign color_G[1] = 9'h120; assign color_B[1] = 9'h100;	 // Text Background	
+	assign color_R[2] = 9'h010; assign color_G[2] = 9'h0f0; assign color_B[2] = 9'h0f0;	 // Text2 Background	
 	assign color_R[3] = 9'h1f0; assign color_G[3] = 9'h1f0; assign color_B[3] = 9'h1f0;  // White
 	assign color_R[4] = 9'h1f0; assign color_G[4] = 9'h1f0; assign color_B[4] = 9'h1f0;  // Cursor
-	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h0f0;  // Text		
-	assign color_R[6] = 9'h000; assign color_G[6] = 9'h010; assign color_B[6] = 9'h010;  // Text2		
-	assign color_R[7] = 9'h100; assign color_G[7] = 9'h130; assign color_B[7] = 9'h1f0;  // slider		
-	assign color_R[8] = 9'h1ff; assign color_G[8] = 9'h086; assign color_B[8] = 9'h006;  // marker		
+	assign color_R[5] = 9'h1ff; assign color_G[5] = 9'h086; assign color_B[5] = 9'h006;  // marker		
+//	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h170;  // Text (blue)	
+	assign color_R[6] = 9'h000; assign color_G[6] = 9'h000; assign color_B[6] = 9'h000;  // Text		
+	assign color_R[7] = 9'h000; assign color_G[7] = 9'h010; assign color_B[7] = 9'h010;  // Text2		
+	assign color_R[8] = 9'h100; assign color_G[8] = 9'h130; assign color_B[8] = 9'h1f0;  // slider		
 	assign color_R[9] = 9'h010; assign color_G[9] = 9'h020; assign color_B[9] = 9'h0f0;  // Black	
 	
 	assign VGA_R = color_R[color];
@@ -121,7 +123,7 @@ module display(
 		.intextarea(intextarea2)
 		);						
 							
-	wire [9:0]char_adr;
+	wire [9:0]char_adr = {line,chr};
 	wire [7:0] char_data;
 	wire w_char = 1;
 	reg [9:0]chr_indx;
@@ -135,7 +137,7 @@ module display(
 		begin
 			string text_data0 = "                                                ";
 			string text_data1 = " R1  L1  R2  L2  R3  L3  R4  L4 PBr VOL  Cancel ";
-			string text_data2 = "                                    Load Pnr:   ";
+			string text_data2 = "                                    Load nr:    ";
 			string text_data3 = "                                    Save        ";
 			string text_data4 = "                                        Confirm ";
 			string text_data5 = " CT  FT LVL MOD  FB Ksc OFS pan Bct Bft Mi  FBi ";
@@ -178,7 +180,7 @@ module display(
 	always @(posedge sys_clk)begin
 		if (tgle)begin chr_indx <= chr_indx+1; end
 		tgle <= ~tgle; 
-		char_adr <= {line,chr};
+//		char_adr <= {line,chr};
 		cnv_var(chr[1:0],itostr,var_str);
 		if(line == 0) begin
 			char_data <= char_buffer(chr,1);
@@ -188,7 +190,7 @@ module display(
 				itostr <= disp_data[{3'b000,data_var}];
 				char_data <= var_str;
 			end
-			else if (chr <= (10*4))begin
+			else if (chr < (10*4))begin
 				itostr <= disp_data[{5'b10111,data_var[1:0]}];
 				char_data <= var_str;
 			end
@@ -205,9 +207,9 @@ module display(
 			if (chr < 32)begin
 				itostr <= disp_data[{3'b001,data_var}];
 				char_data <= var_str;
-			end else if(chr <= 4*11)begin
+			end else if(chr < 11*4)begin
 				char_data <= char_buffer(chr,2);			
-			end else begin
+			end else if(chr < 12*4)begin
 				itostr <= status_data[11];
 				char_data <= var_str;		
 			end
@@ -599,10 +601,10 @@ module display(
 	assign	slider_act 	= slider & inLcdDisplay;
 	assign color=(     // color of element text = 5, curser = 4, white key=3,black key=2,key=1,background=0;
 		( black ) ? 9 :(
-		( marker ) ? 8 :(
-		( slider_act ) ? 7 :(
-		( Char_ACT2 ) ? 6 :(
-		( Char_ACT ) ? 5 :(
+		( slider_act ) ? 8 :(
+		( Char_ACT2 ) ? 7 :(
+		( Char_ACT ) ? 6 :(
+		( marker ) ? 5 :(
 		( cur )? 4 :(
 		( white )? 3 :(
 		( textbackg2 )? 2:(
