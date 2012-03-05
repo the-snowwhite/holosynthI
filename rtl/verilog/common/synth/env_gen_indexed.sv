@@ -8,7 +8,7 @@ module env_gen_indexed (
 	input 					key_on_r[VOICES], 
 	input		[E_WIDTH-1:0]	env_sel,		 
 	input		[V_WIDTH-1:0]	voice_sel,		 
-	output  signed[7:0]	level_mul
+	output  signed[7:0]	level_mul,
 	output reg				voice_free[VOICES]
 );
 
