@@ -137,13 +137,13 @@ module display(
 		begin
 			string text_data0 = "                                                ";
 			string text_data1 = " R1  L1  R2  L2  R3  L3  R4  L4 PBr VOL  Cancel ";
-			string text_data2 = "                                    Load nr:    ";
-			string text_data3 = "                                    Save        ";
+			string text_data2 = "                                   Load nr:     ";
+			string text_data3 = "                                   Save         ";
 			string text_data4 = "                                        Confirm ";
 			string text_data5 = " CT  FT LVL MOD  FB Ksc OFS pan Bct Bft Mi  FBi ";
 			string text_data6 = " Active keys                            Confirm ";
 			string text_data7 = "   !!!  Note Off ERROR !!!                      ";
-			string text_data8 = "aKY onx h_x h_y r_x r_y chr lne eCR sRL  x   y  ";
+			string text_data8 = "aKY onx h_x h_y r_x r_y chr lne eCR sRL Mch Pnr ";
 			case (lne) 
 				0 :	char_buffer = text_data0[indx];
 				1 :	char_buffer = text_data1[indx];
