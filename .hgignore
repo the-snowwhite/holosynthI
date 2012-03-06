@@ -1,6 +1,6 @@
 syntax: glob
 *.bak
-*/db
+**/db/*
 */*_db/compiled_partitions/
 *~
 *.rpt
@@ -32,3 +32,7 @@ syn/*/*/*/*.txt
 *.bsf
 *.html
 **/nios_*
+db/VEEKsynth.db_info
+db/*
+tmp/*
+tmp*
