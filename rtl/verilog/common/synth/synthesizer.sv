@@ -46,7 +46,7 @@ module synthesizer (
 	inout		AUD_BCLK,				//	Audio CODEC Bit-Stream Clock
 	output		AUD_XCK,					//	Audio CODEC Chip Clock
 
-	input [1:0]		N_adr_data_rdy,				// midi data num ready from Nios
+	input 	[2:0]	N_adr_data_rdy,				// midi data num ready from Nios
 	input	[9:0]	N_adr,				// controller nr.
 	output	[7:0]	N_synth_out_data,				// data byte
 	input	[7:0]	N_synth_in_data,				// data byte
@@ -182,13 +182,13 @@ wire	CLOCK_25;
 // Sound clk gen //
 
 // TIME & Display CLOCK Generater //
-
+/*
 `ifdef _LTM_Graphics	         
 	assign VGA_CLK  = CLOCK_25 ;
 `endif
 `ifdef _VEEK_Graphics	         
-	assign VGA_CLK  = HC_LCD_CLK ;
-`endif
+*/	assign VGA_CLK  = HC_LCD_CLK ;/*
+`endif*/
 
 
 reg    [31:0]VGA_CLK_o;
@@ -225,6 +225,7 @@ midi_decoder #(.VOICES(VOICES),.V_WIDTH(V_WIDTH)) midi_decoder_inst(
 	.midi_bytes_in	(midi_bytes),		// data byte
 	.databyte_in	(databyte),		// data byte
 	.voice_free_	( voice_free ),		// envelope gen finished
+	.midi_ch		(com_buf[2][0][3:0]),
 // outputs   
 	.key_on		( key_on  ),		// key trigers
 	.key_val	( key_val ),		// key midi number
@@ -362,6 +363,7 @@ assign RLED[8:1] = {voice_free[7],voice_free[6],voice_free[5],voice_free[4],
 display display_inst_1(		
 	// VGA output //		
 	.VGA_CLK	( VGA_CLK ),   
+	.sys_clk	( sysclk ),		//system clock		
 	.HS	( HS ), 
 	.VS	( VS ), 
 	.SYNC	( SYNC ),	
@@ -382,6 +384,9 @@ display display_inst_1(
 	.disp_data	( disp_data ),
 	.status_data	( status_data ),
 	.DLY2		(DLY2),
+	.N_adr			( N_adr ),				// controller nr.
+	.N_adr_data_rdy		( N_adr_data_rdy ),					// midi data ready from Nios
+	.N_synth_in_data	( N_synth_in_data ),		// data byte from nios to synth
 	.chr_3		( chr_3 ),
 	.col ( col ),
 	.row( row ),

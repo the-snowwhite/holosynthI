@@ -1,5 +1,6 @@
 module display(
 	input VGA_CLK,
+	input	sys_clk,
 	input [7:0]scan_code1,
 	input [7:0]scan_code2,
 	input [7:0]scan_code3,
@@ -19,6 +20,9 @@ module display(
 	output [9:0] VGA_G,
 	output [9:0] VGA_B,
 	//	output [3:0]color,
+	input [9:0] N_adr,				// data addr.
+	input [2:0]	N_adr_data_rdy,	// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk; bit 2 >= to char_disp2 mem 
+	input [7:0] N_synth_in_data,		// data byte from nios to synth
 	input [3:0]chr_3,
 	input [3:0]lne,
 	input [3:0]col,
@@ -26,24 +30,49 @@ module display(
 	input [7:0] slide_val
 );				
 
-	parameter key_y_offset = 370;
+//	parameter key_y_offset = 370;
 	assign  SYNC=1;	
+	parameter text2_y_offset = 266;
 
 ///////////   Color Settings //////	
 	wire 	[3:0]color;	
 
 
-	wire [9:0]color_R[16];	
-	wire [9:0]color_G[16];	
-	wire [9:0]color_B[16];	
-	assign color_R[0] = 9'h000; assign color_G[0] = 9'h000; assign color_B[0] = 9'h000;  // Background	
-	assign color_R[1] = 9'h1f0; assign color_G[1] = 9'h1f0; assign color_B[1] = 9'h000;	 // Text Background	
-	assign color_R[2] = 9'h010; assign color_G[2] = 9'h020; assign color_B[2] = 9'h0f0;  // Black key	
-	assign color_R[3] = 9'h1f0; assign color_G[3] = 9'h1f0; assign color_B[3] = 9'h1f0;  // White Key
-	assign color_R[4] = 9'h1f0; assign color_G[4] = 9'h1f0; assign color_B[4] = 9'h1f0;  // Cursor
-	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h0f0;  // Text		
-	assign color_R[6] = 9'h100; assign color_G[6] = 9'h130; assign color_B[6] = 9'h1f0;  // slider		
-	assign color_R[7] = 9'h1ff; assign color_G[7] = 9'h086; assign color_B[7] = 9'h006;  // marker		
+	wire [9:0]color_R[15:0];	
+	wire [9:0]color_G[15:0];	
+	wire [9:0]color_B[15:0];	
+	
+	`ifdef _LTM_Graphics	         
+		assign color_R[0] = 9'h000; assign color_G[0] = 9'h000; assign color_B[0] = 9'h000;  // Background	
+		assign color_R[1] = 9'h1f0; assign color_G[1] = 9'h1f0; assign color_B[1] = 9'h050;	 // Text Background (yellow2)	
+//		assign color_R[1] = 9'h010; assign color_G[1] = 9'h120; assign color_B[1] = 9'h100;	 // Text Background	(bluish)
+		assign color_R[2] = 9'h020; assign color_G[2] = 9'h140; assign color_B[2] = 9'h130;	 // Text2 Background	
+		assign color_R[3] = 9'h1f0; assign color_G[3] = 9'h1f0; assign color_B[3] = 9'h1f0;  // White
+		assign color_R[4] = 9'h1f0; assign color_G[4] = 9'h1f0; assign color_B[4] = 9'h1f0;  // Cursor
+		assign color_R[5] = 9'h1ff; assign color_G[5] = 9'h086; assign color_B[5] = 9'h006;  // marker		
+		//	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h170;  // Text (blue)	
+		assign color_R[6] = 9'h000; assign color_G[6] = 9'h000; assign color_B[6] = 9'h000;  // Text		
+		assign color_R[7] = 9'h000; assign color_G[7] = 9'h010; assign color_B[7] = 9'h010;  // Text2		
+		assign color_R[8] = 9'h100; assign color_G[8] = 9'h130; assign color_B[8] = 9'h1f0;  // slider		
+		assign color_R[9] = 9'h010; assign color_G[9] = 9'h020; assign color_B[9] = 9'h0f0;  // Black	
+	`endif
+	`ifdef _VEEK_Graphics	         
+		assign color_R[0] = 9'h000; assign color_G[0] = 9'h000; assign color_B[0] = 9'h000;  // Background	
+//		assign color_R[1] = 9'h1f0; assign color_G[1] = 9'h1f0; assign color_B[1] = 9'h000;	 // Text Background (yellow)	
+		assign color_R[1] = 9'h010; assign color_G[1] = 9'h120; assign color_B[1] = 9'h100;	 // Text Background	(bluish2)
+		assign color_R[2] = 9'h010; assign color_G[2] = 9'h0f0; assign color_B[2] = 9'h0f0;	 // Text2 Background	
+		assign color_R[3] = 9'h1f0; assign color_G[3] = 9'h1f0; assign color_B[3] = 9'h1f0;  // White
+		assign color_R[4] = 9'h1f0; assign color_G[4] = 9'h1f0; assign color_B[4] = 9'h1f0;  // Cursor
+		assign color_R[5] = 9'h1ff; assign color_G[5] = 9'h086; assign color_B[5] = 9'h006;  // marker		
+		//	assign color_R[5] = 9'h010; assign color_G[5] = 9'h0f0; assign color_B[5] = 9'h170;  // Text (blue)	
+		assign color_R[6] = 9'h000; assign color_G[6] = 9'h000; assign color_B[6] = 9'h000;  // Text		
+		assign color_R[7] = 9'h000; assign color_G[7] = 9'h010; assign color_B[7] = 9'h010;  // Text2		
+		assign color_R[8] = 9'h100; assign color_G[8] = 9'h130; assign color_B[8] = 9'h1f0;  // slider		
+		assign color_R[9] = 9'h010; assign color_G[9] = 9'h020; assign color_B[9] = 9'h0f0;  // Black	
+	`endif
+	
+	
+	
 	
 	assign VGA_R = color_R[color];
 	assign VGA_G = color_G[color];
@@ -82,21 +111,40 @@ module display(
 	wire Char_ACT;
 	wire intextarea;
 	
+	wire Char_ACT2;
+	wire intextarea2;
+	
 	char_disp char_gen(
-// Input Ports
+		// Input Ports
 		.counterX ( CounterX ),
 		.counterY (CounterY ),
 		.ram_Adr (char_adr),
 		.ram_Data (char_data),
 		.clk	(VGA_CLK ),
+		.wclk	( sys_clk ),
 		.write_Ram(w_char),
-//	input signed [<msb>:<lsb>] <port_name>,
-// Output Ports
+		//	input signed [<msb>:<lsb>] <port_name>,
+		// Output Ports
 		.char_bit(Char_ACT),
 		.intextarea(intextarea)
-	);						
+		);						
 							
-	wire [9:0]char_adr;
+	char_disp char_gen2(
+		// Input Ports
+		.counterX ( CounterX ),
+		.counterY (((CounterY<=text2_y_offset) ? 0 : (CounterY - text2_y_offset))),
+		.ram_Adr (N_adr),
+		.ram_Data (N_synth_in_data),
+		.clk	( VGA_CLK ),
+		.wclk	( N_adr_data_rdy[2] ),
+		.write_Ram(w_char),
+		//	input signed [<msb>:<lsb>] <port_name>,
+		// Output Ports
+		.char_bit(Char_ACT2),
+		.intextarea(intextarea2)
+		);						
+							
+	wire [9:0]char_adr = {line,chr};
 	wire [7:0] char_data;
 	wire w_char = 1;
 	reg [9:0]chr_indx;
@@ -110,13 +158,13 @@ module display(
 		begin
 			string text_data0 = "                                                ";
 			string text_data1 = " R1  L1  R2  L2  R3  L3  R4  L4 PBr VOL  Cancel ";
-			string text_data2 = "                                    Load Pnr:   ";
-			string text_data3 = "                                    Save        ";
+			string text_data2 = "                                   Load nr:     ";
+			string text_data3 = "                                   Save         ";
 			string text_data4 = "                                        Confirm ";
 			string text_data5 = " CT  FT LVL MOD  FB Ksc OFS pan Bct Bft Mi  FBi ";
 			string text_data6 = " Active keys                            Confirm ";
 			string text_data7 = "   !!!  Note Off ERROR !!!                      ";
-			string text_data8 = "aKY onx h_x h_y r_x r_y chr lne eCR sRL  x   y  ";
+			string text_data8 = "aKY onx h_x h_y r_x r_y chr lne eCR sRL Mch Pnr ";
 			case (lne) 
 				0 :	char_buffer = text_data0[indx];
 				1 :	char_buffer = text_data1[indx];
@@ -150,10 +198,10 @@ module display(
 	reg [7:0]itostr;
 	reg tgle;	
 		
-	always @(posedge VGA_CLK)begin
+	always @(posedge sys_clk)begin
 		if (tgle)begin chr_indx <= chr_indx+1; end
 		tgle <= ~tgle; 
-		char_adr <= {line,chr};
+//		char_adr <= {line,chr};
 		cnv_var(chr[1:0],itostr,var_str);
 		if(line == 0) begin
 			char_data <= char_buffer(chr,1);
@@ -163,7 +211,7 @@ module display(
 				itostr <= disp_data[{3'b000,data_var}];
 				char_data <= var_str;
 			end
-			else if (chr <= (10*4))begin
+			else if (chr < (10*4))begin
 				itostr <= disp_data[{5'b10111,data_var[1:0]}];
 				char_data <= var_str;
 			end
@@ -180,9 +228,9 @@ module display(
 			if (chr < 32)begin
 				itostr <= disp_data[{3'b001,data_var}];
 				char_data <= var_str;
-			end else if(chr <= 4*11)begin
+			end else if(chr < 11*4)begin
 				char_data <= char_buffer(chr,2);			
-			end else begin
+			end else if(chr < 12*4)begin
 				itostr <= status_data[11];
 				char_data <= var_str;		
 			end
@@ -249,12 +297,11 @@ module display(
 				char_data <= var_str;
 			end
 		end			
-		else begin
+		else 
 			char_data <= " ";
-		end
 	end
 /////////Channel-1 Trigger////////
-	wire L_5_tr=(scan_code1==8'h37)?1:0;//-5
+/*	wire L_5_tr=(scan_code1==8'h37)?1:0;//-5
 	wire L_6_tr=(scan_code1==8'h39)?1:0;//-6		
 	wire L_7_tr=(scan_code1==8'h3b)?1:0;//-7		
 	wire M_1_tr=(scan_code1==8'h3c)?1:0;//1		
@@ -528,14 +575,16 @@ module display(
 		.line_y(blank_y),
 		.line_x(xdeta)
 	);
-
+*/
 	wire white;
 	wire black;
-	wire text;
+	wire textbackg;
+	wire textbackg2;
 	wire slider_act;
 
 	parameter org_x = 100;
-	parameter org_y = 300;
+//	parameter org_y = 283;
+	parameter org_y = 256;
 	parameter line_x = 600;
 	parameter line_y = 10;
 	parameter s_line_x = 20;
@@ -563,21 +612,26 @@ module display(
 	wire marker = (CounterX >= (col * 4*16) && CounterX < ((col+1) *4*16)
 					&& (CounterY >= row *16) && (CounterY <= (row +1)*16)) ? 1:0;
 
-	wire w_key 		=~blank_bar &  white_bar;
-	wire key_		= blank_bar |  white_bar;
-	assign	white = (drag_space | w_key) & inLcdDisplay;
-	assign 	black	= ~w_key & key_ & inLcdDisplay;
-	assign	text 	= intextarea & inLcdDisplay;
+//	wire w_key 		=~blank_bar &  white_bar;
+//	wire key_		= blank_bar |  white_bar;
+//	assign	white = (drag_space | w_key) & inLcdDisplay;
+//	assign 	black	= ~w_key & key_ & inLcdDisplay;
+	assign	white = drag_space  & inLcdDisplay;
+	assign 	black	= 1'b0;//~w_key & key_ & inLcdDisplay;
+	assign	textbackg 	= intextarea  & inLcdDisplay;
+	assign	textbackg2 	= intextarea2 & inLcdDisplay;
 	assign	slider_act 	= slider & inLcdDisplay;
 	assign color=(     // color of element text = 5, curser = 4, white key=3,black key=2,key=1,background=0;
-		( marker ) ? 7 :(
-		( slider_act ) ? 6 :(
-		( Char_ACT ) ? 5 :(
+		( black ) ? 9 :(
+		( slider_act ) ? 8 :(
+		( Char_ACT2 ) ? 7 :(
+		( Char_ACT ) ? 6 :(
+		( marker ) ? 5 :(
 		( cur )? 4 :(
 		( white )? 3 :(
-		( black )? 2:(
-		( text )?1:0
-		))))))
+		( textbackg2 )? 2:(
+		( textbackg )?1:0
+		))))))))
 	);
 
 endmodule

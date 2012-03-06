@@ -8,7 +8,8 @@ module midi_decoder(
 	input [7:0]		midi_bytes_in,// check if can be used as databyte_in instead
 	input [7:0]		databyte_in,
 // inputs from synth engine	
-	input 			voice_free_[VOICES],	
+	input 			voice_free_[VOICES],
+	input [3:0]		midi_ch,	
 // outputs to synth_engine
 // notes
 	output reg 	key_on[VOICES],
@@ -33,8 +34,11 @@ parameter VOICES = 8;
 parameter V_WIDTH = utils::clogb2(VOICES);
 
 /////////////////////////////////////Key1-Key2 Output///////////////////////////
-	wire is_st_note_on=(
-		(cur_status[7:4]==4'h9)?1'b1:1'b0);
+wire is_cur_midi_ch=(
+	(cur_status[3:0]==cur_midi_ch)?1'b1:1'b0);
+
+wire is_st_note_on=(
+	(cur_status[7:4]==4'h9)?1'b1:1'b0);
 
 	wire is_st_note_off=(
 		(cur_status[7:4]==4'h8)?1'b1:1'b0);
@@ -61,6 +65,7 @@ parameter V_WIDTH = utils::clogb2(VOICES);
 	 (databyte==8'h7b)?1'b1:1'b0);	 
 	
 //////////////key1 & key2 Assign///////////
+reg [3:0] cur_midi_ch;
 reg byteready;
 reg [7:0]cur_status;
 reg [7:0]midi_bytes;
@@ -95,10 +100,11 @@ reg [V_WIDTH:0]cur_slot;
 			free_voice <= 1'b1;
 		end
 		else begin 
-			byteready <= byteready_in;
+			cur_midi_ch <= midi_ch;
+			byteready <= (is_cur_midi_ch | is_st_sysex) ? byteready_in : 1'b0 ;
 			cur_status <= cur_status_in;
-			midi_bytes <= midi_bytes_in;
-			databyte <= databyte_in;
+			midi_bytes <= (is_cur_midi_ch | is_st_sysex) ? midi_bytes_in : 8'h00;
+			databyte <= (is_cur_midi_ch | is_st_sysex) ? databyte_in : 8'h00;
 			for(i3=0; i3 < VOICES ; i3=i3+1) begin
 				if(voice_free_r[i3])begin
 					free_voice <= 1'b1;

@@ -31,3 +31,4 @@ syn/*/*/*/*.txt
 **/nios_2/synthesis/*
 *.bsf
 *.html
+**/nios_*

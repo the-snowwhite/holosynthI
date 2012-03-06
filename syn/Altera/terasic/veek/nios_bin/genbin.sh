@@ -2,16 +2,16 @@
 
 cp ../VEEKsynth.sof ./
 
-cp ../software/VEEKSynth/VEEKSynth.elf ./
+cp ../software/VEEKsynth/VEEKsynth.elf ./
 
-sof2flash --epcs --input="VEEKsynth.sof" --output="VEEKSynth_HW.flash"
+sof2flash --epcs --input="VEEKsynth.sof" --output="VEEKsynth_HW.flash"
 
-nios2-elf-objcopy -I srec -O binary "VEEKSynth_HW.flash" "VEEKSynth_HW.bin"
+nios2-elf-objcopy -I srec -O binary "VEEKsynth_HW.flash" "VEEKsynth_HW.bin"
 
-elf2flash --epcs --after="VEEKSynth_HW.flash" --input="VEEKSynth.elf" --output="VEEKSynth_SW.flash"
+elf2flash --epcs --after="VEEKsynth_HW.flash" --input="VEEKsynth.elf" --output="VEEKsynth_SW.flash"
 
-nios2-elf-objcopy -I srec -O binary "VEEKSynth_SW.flash" "VEEKSynth_SW.bin"
+nios2-elf-objcopy -I srec -O binary "VEEKsynth_SW.flash" "VEEKsynth_SW.bin"
 
-cat "VEEKSynth_HW.bin" "VEEKSynth_SW.bin">"VEEKSynth.bin"
+cat "VEEKsynth_HW.bin" "VEEKsynth_SW.bin">"VEEKsynth.bin"
 
 

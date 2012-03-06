@@ -10,9 +10,9 @@ output reg	sCLK_XVXOSC,
 output reg	sCLK_XVXENVS,
 output reg	oAUD_BCK
 );
-parameter 	VOICES;
-parameter 	V_OSC; // oscs per Voice
-parameter 	V_ENVS;
+parameter 	VOICES = 8;
+parameter 	V_OSC = 4; // oscs per Voice
+parameter 	V_ENVS = 2*V_OSC;
 
 parameter	AUDIO_CLK		=	271428571;	//	271.428571 MHz
 parameter	REF_CLK			=	16964286;	//	16.964286	MHz
