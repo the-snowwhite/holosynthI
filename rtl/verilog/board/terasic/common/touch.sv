@@ -10,7 +10,7 @@ module touch(
 	input [7:0]disp_data[94],
 	input sys_real,
 	input [7:0]sys_real_dat,
-	input  N_adr_9,				// end transfer sig
+	input  N_adr_9,				// disp write clk
 	input 		  		prg_ch_cmd, 
 	input reg  [7:0]	prg_ch_data, 
 
@@ -28,18 +28,21 @@ module touch(
 	output reg[7:0]N_sound_nr
 );
 
+	parameter x_offset = 4;
+
 `ifdef _LTM_Graphics	         
-	wire[7:0] x = x_in;
-	wire[7:0] y = y;
+	wire[7:0] x = (x == 0) ? 8'hff : x_in - x_offset;
+	wire[7:0] y = y_in;
 `endif
 `ifdef _VEEK_Graphics	         
-	wire[7:0] x = x_in;
+	wire[7:0] x = x_in - x_offset;
 	wire[7:0] y = ((y_in * 5) >> 2);
 `endif
 
 
 parameter x_off = 7;
 parameter y_off = 16;
+parameter slide_y_min = 135;
 
 assign touch_status_data[0] = hit_x;
 assign touch_status_data[1] = hit_y;
@@ -80,11 +83,11 @@ wire drag = ((delta_hit_x_abs >=3) && (delta_y_abs >=9));
 wire in_textarea = (hit_x <=240 && hit_y <=134);
 
 wire minus_hit = ((hit_x >= 20 && hit_x <= 39)
-			&& (hit_y >= 155 && hit_y <= 168));
+			&& (hit_y >= slide_y_min && hit_y <= slide_y_min+10));
 wire plus_hit = ((hit_x >= 221 && hit_x <= 240)
-			&& (hit_y >= 155 && hit_y <= 168));
+			&& (hit_y >= slide_y_min && hit_y <= slide_y_min+10));
 wire slide_bar_hit = ((hit_x >= 40 && hit_x <= 220)
-			&& (hit_y >= 155 && hit_y <= 168));
+			&& (hit_y >= slide_y_min && hit_y <= slide_y_min+10));
 
 wire save_pressed =	((hit_y >=44 && hit_y <=50) && // write line
 							(hit_x >= 178 && hit_x <=196));	// write pressed

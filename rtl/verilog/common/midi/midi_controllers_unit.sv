@@ -16,7 +16,7 @@ module midi_controllers_unit (
 	output [7:0]disp_data[94],
 	output [7:0] o_index,
 //@name	cpu signals //
-	input [1:0]	N_adr_data_rdy,	// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk
+	input [2:0]	N_adr_data_rdy,	// 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk
 	input [8:0] N_adr,				// data addr.
 	output [7:0] N_synth_out_data,		// data byte from synth to nios
 	input [7:0] N_synth_in_data,		// data byte from nios to synth
@@ -552,6 +552,7 @@ assign midi_data[127] = com_buf[4'h1f];
 				synth_data[4'hB][a1] <= 8'h00;
 				synth_data[4'hC][a1] <= 8'h00;
 				synth_data[4'hD][a1] <= 8'h00;
+				synth_data[4'hE][a1] <= 8'h7f;		
 				synth_data[4'hF][a1] <= 8'h00;		
 
 				synth_data[4'h0][a1+V_OSC] <= 8'h40;

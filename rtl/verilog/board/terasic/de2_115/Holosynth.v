@@ -95,6 +95,12 @@ module Holosynth(
 	FL_WE_N,
 	FL_WP_N,
 
+	///EPCS
+	DCLK,
+	DATA0,
+	ASDO,
+	nCSO,
+
 	//////////// GPIO, GPIO connect to LTM - 4.3" LCD and Touch //////////
 	LTM_ADC_BUSY,
 	LTM_ADC_DCLK,
@@ -236,6 +242,12 @@ input		          		FL_RY;
 output		          		FL_WE_N;
 output		          		FL_WP_N;
 
+////EPCS
+output                   DCLK;
+input                    DATA0;
+output                   ASDO;
+output                   nCSO;
+
 //////////// GPIO, GPIO connect to LTM - 4.3" LCD and Touch //////////
 input		          		LTM_ADC_BUSY;
 output		          		LTM_ADC_DCLK;
@@ -283,7 +295,7 @@ input		          		TOUCH_PENIRQ_N;
 //=======================================================
 
 wire N_save_sig,N_load_sig;
-wire [1:0]N_adr_data_rdy; // 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk 
+wire [2:0]N_adr_data_rdy; // 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk 
 
 wire [7:0]N_sound_nr;
 wire [9:0]N_adr;
@@ -335,7 +347,7 @@ assign LTM_NCLK = VGA_CLK;
 
 `ifdef _Nios
     nios_2 u0 (
-        .reset_reset_n                                  (1'b1),                                  //  reset_0.reset_n
+        .reset_reset_n                                  (KEY[3]),                                  //  reset_0.reset_n
         .clk_clk                                        (CLOCK_50),                                        //    clk_0.clk
         .flash_write_n_to_the_cfi_flash      (FL_WE_N),      //    flash.flash_tristate_controller_tcm_write_n
         .flash_tri_state_bridge_flash_address      (FL_ADDR),      //         .flash_tristate_controller_tcm_address
@@ -371,8 +383,14 @@ assign LTM_NCLK = VGA_CLK;
        .sdram_wire_dqm(DRAM_DQM),
        .sdram_wire_ras_n(DRAM_RAS_N),
        .sdram_wire_we_n(DRAM_WE_N),
-       .sdram_clk (DRAM_CLK)                             //             sdram.clk
-  );
+       .sdram_clk (DRAM_CLK),                             //             sdram.clk
+       .ecps_dclk                            (DCLK),                            //                       ecps.dclk
+       .ecps_sce                             (nCSO),                             //                           .sce
+       .ecps_sdo                             (ASDO),                             //                           .sdo
+       .ecps_data0                           (DATA0)                            //                           .data0
+
+		 
+ );
 `endif
 
 	wire[1:0] N_irq;
@@ -401,9 +419,14 @@ synthesizer  synthesizer_inst(
 	.HS   (VGA_HS   ),			//	VGA H_SYNC
 	.VS   (VGA_VS   ),			//	VGA V_SYNC
 //	.LCD_BLANK(LCD_BLANK),			//	LCD BLANK
-	.HD   (LTM_HD   ),			//	LCD H_SYNC
-	.VD   (LTM_VD   ),			//	LCD V_SYNC
-	.DEN	(LTM_DEN),			//	LCD DE_H
+	`ifdef _LTM_Graphics
+		.HD   (LTM_HD   ),			//	LCD H_SYNC
+		.VD   (LTM_VD   ),			//	LCD V_SYNC
+		.DEN	(LTM_DEN),			//	LCD DE_H
+	`endif
+	`ifdef _VEEK_Graphics	         
+		.DEN	(LCD_DEN),			//	LCD DE_H
+	`endif
 	.inDisplayArea(VGA_BLANK_N),			//	VGA BLANK
 	.SYNC (VGA_SYNC_N ),			//	VGA SYNC
 	.VGA_R(VGA_R_w),   				//	VGA Red[9:0]
@@ -419,12 +442,21 @@ synthesizer  synthesizer_inst(
 	.AUD_BCLK   (AUD_BCLK   ),		//	Audio CODEC Bit-Stream Clock
 	.AUD_XCK    (AUD_XCK    ),		//	Audio CODEC Chip Clock
 `endif
-`ifdef _Graphics	         
-   .LTM_ADC_BUSY(LTM_ADC_BUSY),
-   .LTM_ADC_DCLK(LTM_ADC_DCLK),
-   .LTM_ADC_DIN(LTM_ADC_DIN),
-   .LTM_ADC_DOUT(LTM_ADC_DOUT),
-   .LTM_ADC_PENIRQ_n(LTM_ADC_PENIRQ_n),
+`ifdef _LTM_Graphics	         
+	.LTM_ADC_BUSY(LTM_ADC_BUSY),
+	.LTM_ADC_DCLK(LTM_ADC_DCLK),
+	.LTM_ADC_DIN(LTM_ADC_DIN),
+	.LTM_ADC_DOUT(LTM_ADC_DOUT),
+	.LTM_ADC_PENIRQ_n(LTM_ADC_PENIRQ_n),
+	.LTM_SCEN(LTM_SCEN),
+	.LTM_SDA(LTM_SDA)
+`endif
+`ifdef _VEEK_Graphics	         
+	.LTM_ADC_BUSY(TOUCH_BUSY),
+	.LTM_ADC_DCLK(TOUCH_DCLK),
+	.LTM_ADC_DIN(TOUCH_DIN),
+	.LTM_ADC_DOUT(TOUCH_DOUT),
+	.LTM_ADC_PENIRQ_n(TOUCH_PENIRQ_N),
 //   .LTM_SCEN(LTM_SCEN),
 //   .LTM_SDA(LTM_SDA)
 `endif
